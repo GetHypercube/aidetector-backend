@@ -122,7 +122,6 @@ def main():
     img.load()
 
     for model_name in models_config:
-        
         if debug_mode:
             print(f"Model {model_name} processed")
             print_memory_usage()
@@ -154,7 +153,8 @@ def main():
         },
     }
 
-    print(json.dumps(output, indent=4))
+    return output
 
 if __name__ == "__main__":
-    main()
+    output = main()
+    print(json.dumps(output, indent=4))

@@ -124,7 +124,7 @@ def get_list_norm(norm_type):
     return transforms_list
 
 
-def run_single_test(image_path, debug):
+def process_image(image_path, debug):
     """
     Runs inference on a single image using specified models and weights.
     Loads each model individually to optimize memory usage.
@@ -187,7 +187,7 @@ def main():
     - `--image_path`: The path to the image file on which inference is to be performed.
     - `--debug`: Show memory usage or not
 
-    After parsing the arguments, it calls the `run_single_test` function to perform inference
+    After parsing the arguments, it calls the `process_image` function to perform inference
     on the specified image using the provided model weights.
     """
 
@@ -197,9 +197,11 @@ def main():
         "--debug", action="store_true", help="Enable debug mode to print memory usage"
     )
     args = parser.parse_args()
-    output = run_single_test(args.image_path, debug=args.debug)
-    print(json.dumps(output, indent=4))
+    
+    output = process_image(args.image_path, debug=args.debug)
+    return output
 
 
 if __name__ == "__main__":
-    main()
+    output = main()
+    print(json.dumps(output, indent=4))
