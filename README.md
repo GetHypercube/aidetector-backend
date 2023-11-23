@@ -19,11 +19,11 @@ python -m venv .env
 ```
 
 3. Activate the Python environment:
-- In Windows:
+- For Windows:
   ```
   .\.env\Scripts\activate
   ```
-- In OSX:
+- For OSX:
   ```
   source env/bin/activate
   ```
@@ -38,9 +38,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-6. Download the weights:
-- Download the weights from this [link](https://www.dropbox.com/s/pkj8p3v1gmm8t4p/weights.zip?dl=0).
-- Place them under `.\weights` directory in your project folder.
+6. Download the weights from this [link](https://www.dropbox.com/s/pkj8p3v1gmm8t4p/weights.zip?dl=0) and place them under `.\weights` directory in your project folder.
 
 ## Usage
 
@@ -52,7 +50,4 @@ For GAN detector:
 
 `python .\gandetector.py --image_path example_images\gan\real\real_biggan.png`
 
-If you want to see memory usage, you can use the —debug flag:
-
-`python .\dmdetector.py --image_path midjourney.jpg --debug`
-
+If you want to see memory usage, you can use the `—debug` flag.
