@@ -14,7 +14,7 @@ import psutil
 import torch
 import numpy as np
 from PIL import Image, UnidentifiedImageError
-from networks.networks.resnet50nodown import resnet50nodown
+from networks.resnet50nodown import resnet50nodown
 
 def compress_and_resize_image(image_path, max_size=(1024, 1024)):
     """

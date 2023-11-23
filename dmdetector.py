@@ -15,7 +15,7 @@ import psutil
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 import torchvision.transforms as transforms
-import networks.networks.resnet_mod as resnet_mod
+import networks.resnet_mod as resnet_mod
 
 models_config = {
     "Grag2021_progan": {
