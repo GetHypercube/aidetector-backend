@@ -55,3 +55,11 @@ For just running the GAN detector:
 `python .\gandetector.py --image_path example_images\gan\real\real_biggan.png`
 
 If you want to see memory usage, you can use the `—debug` flag.
+
+If you want to use the API, first run the server:
+
+`python .\api.py`
+
+In Windows, run the CURL command:
+
+`curl -X POST -F "file=@real_biggan.png" http://localhost:8080/detect`
