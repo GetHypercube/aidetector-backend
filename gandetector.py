@@ -1,8 +1,5 @@
 """
-This module is used for running inference on a single image using pre-trained
-models. It supports different models and applies necessary transformations to the
-input image before feeding it to the models for prediction.
-
+GAN Detector: Inference on a single image using pre-trained models for GAN detection.
 It prints out the logits returned by each model and the final label based on these logits.
 """
 
@@ -30,53 +27,34 @@ models_config = {
     },
 }
 
-
 def load_model(model_name, device):
-    """Loads the model from the config."""
+    """
+    Loads the model from the config.
+    """
     model_config = models_config[model_name]
     model = resnet50nodown(device, model_config["model_path"])
     return model
 
-
 def process_image(model, img):
-    """Passes the image through the model to get the logit."""
+    """
+    Passes the image through the model to get the logit.
+    """
     return model.apply(img)
-
 
 def main():
     """
-    The main function of the script. It parses command-line arguments and runs the inference test.
-
-    The function expects three command-line arguments:
-    - `--image_path`: The path to the image file on which inference is to be performed.
-    - `--debug`: Show memory usage or not
-
-    After parsing the arguments, it calls the `run_single_test` function to perform inference
-    on the specified image using the provided model weights.
+    Parses command-line arguments and runs the inference test.
     """
-    parser = argparse.ArgumentParser(
-        description="This script tests the network on a single image."
-    )
-    parser.add_argument(
-        "--image_path",
-        "-i",
-        type=str,
-        required=True,
-        help="input image path (PNG or JPEG)",
-    )
-    parser.add_argument(
-        "--debug",
-        "-d",
-        action="store_true",
-        help="enables debug mode to print memory usage",
-    )
+    parser = argparse.ArgumentParser(description="GAN Detector script.")
+    parser.add_argument("--image_path", "-i", type=str, required=True, help="Input image path (PNG or JPEG)")
+    parser.add_argument("--debug", "-d", action="store_true", help="Enable debug mode")
+
     config = parser.parse_args()
     image_path = config.image_path
     debug_mode = config.debug
 
     start_time = time.time()
     logits = {}
-
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     processed_image_path = compress_and_resize_image(image_path)
@@ -88,13 +66,10 @@ def main():
             print(f"Model {model_name} processed")
             print_memory_usage()
 
-
         model = load_model(model_name, device)
         logit = process_image(model, img)
-
         logits[model_name] = logit.item() if isinstance(logit, np.ndarray) else logit
 
-        # Unload model from memory
         del model
         torch.cuda.empty_cache()
 
@@ -102,10 +77,8 @@ def main():
             print_memory_usage()
 
     execution_time = time.time() - start_time
-
     label = "True" if any(value < 0 for value in logits.values()) else "False"
 
-    # Construct output JSON
     output = {
         "product": "gan-model-detector",
         "detection": {
