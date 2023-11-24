@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 To run the detector on an image:
 
-`python .\dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+`python .\main.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
 
 For just running the diffusion detector:
 
