@@ -42,11 +42,15 @@ pip install -r requirements.txt
 
 ## Usage
 
-For diffusion detector:
+To run the detector on an image:
 
 `python .\dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
 
-For GAN detector:
+For just running the diffusion detector:
+
+`python .\dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+
+For just running the GAN detector:
 
 `python .\gandetector.py --image_path example_images\gan\real\real_biggan.png`
 

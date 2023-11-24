@@ -35,45 +35,36 @@ def load_model(model_name, device):
     model = resnet50nodown(device, model_config["model_path"])
     return model
 
-def process_image(model, img):
+def process_image(image_path, debug):
     """
-    Passes the image through the model to get the logit.
+    Runs inference on a single image using specified models and weights.
+    Args:
+        image_path (str): Path to the image file for inference.
+        debug (bool): Flag to enable debug mode.
+    Returns:
+        dict: JSON object with detection results and execution time.
     """
-    return model.apply(img)
-
-def main():
-    """
-    Parses command-line arguments and runs the inference test.
-    """
-    parser = argparse.ArgumentParser(description="GAN Detector script.")
-    parser.add_argument("--image_path", "-i", type=str, required=True, help="Input image path (PNG or JPEG)")
-    parser.add_argument("--debug", "-d", action="store_true", help="Enable debug mode")
-
-    config = parser.parse_args()
-    image_path = config.image_path
-    debug_mode = config.debug
-
     start_time = time.time()
-    logits = {}
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)
     img = Image.open(processed_image_path).convert("RGB")
     img.load()
 
     for model_name in models_config:
-        if debug_mode:
+        if debug:
             print(f"Model {model_name} processed")
             print_memory_usage()
 
         model = load_model(model_name, device)
-        logit = process_image(model, img)
+        logit = model.apply(img)
         logits[model_name] = logit.item() if isinstance(logit, np.ndarray) else logit
 
         del model
         torch.cuda.empty_cache()
 
-        if debug_mode:
+        if debug:
             print_memory_usage()
 
     execution_time = time.time() - start_time
@@ -88,6 +79,20 @@ def main():
         },
     }
 
+    return output
+
+def main():
+    """
+    Command-line interface for the GAN detector.
+    """
+    parser = argparse.ArgumentParser(description="GAN Detector script.")
+    parser.add_argument("--image_path", "-i", type=str, required=True, help="Input image path (PNG or JPEG)")
+    parser.add_argument("--debug", "-d", action="store_true", help="Enable debug mode")
+    
+    args = parser.parse_args()
+
+    output = process_image(args.image_path, args.debug)
+    
     return output
 
 if __name__ == "__main__":

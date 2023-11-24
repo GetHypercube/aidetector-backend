@@ -115,6 +115,9 @@ def process_image(image_path, debug):
     return output
 
 def main():
+    """
+    Command-line interface for the GAN detector.
+    """
     parser = argparse.ArgumentParser(description="DM Detector Inference on a Single Image")
     parser.add_argument("--image_path", type=str, required=True, help="Path to the image file")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
