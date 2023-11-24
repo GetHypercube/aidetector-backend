@@ -1,4 +1,5 @@
 import psutil
+import os
 from PIL import Image, UnidentifiedImageError
 
 def compress_and_resize_image(image_path, max_size=(1024, 1024)):
