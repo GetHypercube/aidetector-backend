@@ -39,8 +39,8 @@ def load_and_process_model(model_name, device):
     """
     config = models_config[model_name]
     model = resnet_mod.resnet50(num_classes=1, gap_size=1, stride0=1)
-    checkpoint = torch.load(config["model_path"], map_location="cpu")
-
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(config["model_path"], map_location=device)
     if "model" in checkpoint:
         state_dict = checkpoint["model"]
     else:

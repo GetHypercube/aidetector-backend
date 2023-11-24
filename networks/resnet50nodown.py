@@ -376,9 +376,14 @@ def resnet50nodown(device, filename, num_classes=1):
     Returns:
         ResNet: The ResNet-50 model loaded with the specified weights.
     """
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes, stride0=1)
+
+    # Load the model onto the appropriate device
     model.load_state_dict(
-        torch.load(filename, map_location=torch.device("cpu"))["model"]
+        torch.load(filename, map_location=device)["model"]
     )
+
+    # Move the model to the same device for evaluation
     model = model.to(device).eval()
     return model
