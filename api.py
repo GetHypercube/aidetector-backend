@@ -1,9 +1,21 @@
 from flask import Flask, request, jsonify
 from dmdetector import process_image as dm_process_image
 from gandetector import process_image as gan_process_image
-import json
 
 app = Flask(__name__)
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.json
+    if not data or 'file_path' not in data or 'feedback' not in data:
+        return jsonify({'error': 'Missing file_path or feedback'}), 400
+
+    file_path = data['file_path']
+    user_feedback = data['feedback']
+
+    print(f"Feedback received for file: {file_path}, User Feedback: {user_feedback}")
+
+    return jsonify({'message': 'Feedback received successfully'})
 
 @app.route('/detect', methods=['POST'])
 def detect():
