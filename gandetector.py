@@ -64,7 +64,11 @@ def process_image(image_path, debug, preloaded_models=None):
     img.load()
 
     for model_name in models_config:
-        model = preloaded_models.get(model_name) if preloaded_models else load_model(model_name, device, debug)
+        model = (
+            preloaded_models.get(model_name)
+            if preloaded_models
+            else load_model(model_name, device, debug)
+        )
 
         logit = model.apply(img)
         logits[model_name] = logit.item() if isinstance(logit, np.ndarray) else logit
@@ -108,6 +112,7 @@ def main():
     args = parser.parse_args()
 
     return process_image(args.image_path, args.debug)
+
 
 if __name__ == "__main__":
     output = main()

@@ -94,7 +94,11 @@ def process_image(image_path, debug, preloaded_models=None):
     img = Image.open(processed_image_path).convert("RGB")
 
     for model_name, config in models_config.items():
-        model = preloaded_models.get(model_name) if preloaded_models else load_and_process_model(model_name, device, debug)
+        model = (
+            preloaded_models.get(model_name)
+            if preloaded_models
+            else load_and_process_model(model_name, device, debug)
+        )
 
         transform = get_transformations(config["norm_type"])
 
@@ -125,6 +129,7 @@ def process_image(image_path, debug, preloaded_models=None):
 
     return detection_output
 
+
 def main():
     """
     Command-line interface for the GAN detector.
@@ -140,6 +145,7 @@ def main():
     args = parser.parse_args()
 
     return process_image(args.image_path, args.debug)
+
 
 if __name__ == "__main__":
     output = main()
