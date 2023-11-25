@@ -1,5 +1,4 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:110727845776:task-definition/aidetector-prod:1",
   "containerDefinitions": [
       {
           "name": "aidetector-prod",
@@ -37,43 +36,8 @@
   "taskRoleArn": "arn:aws:iam::110727845776:role/ecsTaskExecutionRole",
   "executionRoleArn": "arn:aws:iam::110727845776:role/backend-role-prod",
   "networkMode": "awsvpc",
-  "revision": 1,
   "volumes": [],
-  "status": "ACTIVE",
-  "requiresAttributes": [
-      {
-          "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-      },
-      {
-          "name": "ecs.capability.execution-role-awslogs"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.ecr-auth"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.task-iam-role"
-      },
-      {
-          "name": "ecs.capability.execution-role-ecr-pull"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-      },
-      {
-          "name": "ecs.capability.task-eni"
-      },
-      {
-          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-      }
-  ],
   "placementConstraints": [],
-  "compatibilities": [
-      "EC2",
-      "FARGATE"
-  ],
   "requiresCompatibilities": [
       "FARGATE"
   ],
@@ -83,7 +47,5 @@
       "cpuArchitecture": "X86_64",
       "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2023-11-25T01:49:13.082Z",
-  "registeredBy": "arn:aws:sts::110727845776:assumed-role/OrganizationAccountAccessRole/Luis",
   "tags": []
 }

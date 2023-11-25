@@ -100,10 +100,7 @@ def main():
 
     args = parser.parse_args()
 
-    output = process_image(args.image_path, args.debug)
-
-    return output
-
+    return process_image(args.image_path, args.debug)
 
 if __name__ == "__main__":
     output = main()

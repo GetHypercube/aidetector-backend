@@ -47,6 +47,6 @@ jobs:
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: aidetector-prod
-          cluster: hypercube-cluster-prod
+          cluster: aidetector-prod
           wait-for-service-stability: true
   
