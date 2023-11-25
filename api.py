@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
+    print("Received data:", request.data)  # Add this line for debugging
     data = request.json
     if not data or 'file_path' not in data or 'feedback' not in data:
         return jsonify({'error': 'Missing file_path or feedback'}), 400
@@ -16,6 +17,7 @@ def feedback():
     print(f"Feedback received for file: {file_path}, User Feedback: {user_feedback}")
 
     return jsonify({'message': 'Feedback received successfully'})
+
 
 @app.route('/detect', methods=['POST'])
 def detect():
