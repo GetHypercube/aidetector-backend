@@ -11,6 +11,13 @@ from gandetector import process_image as gan_process_image
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def hello_world():
+    """
+    Responds with a 'Hello world' message.
+    """
+    return jsonify({'message': 'Hello world'}), 200
+
 @app.route('/feedback', methods=['POST'])
 def feedback():
     """
