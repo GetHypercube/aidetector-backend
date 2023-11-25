@@ -80,11 +80,11 @@ def process_image(image_path, debug, preloaded_models=None):
     label = "False" if any(value < 0 for value in logits.values()) else "True"
 
     detection_output = {
-        "product": "gan-model-detector",
-        "detection": {
-            "logit": logits,
-            "IsGANImage?": label,
-            "ExecutionTime": execution_time,
+        "model": "gan-model-detector",
+        "inferenceResults": {
+            "logits": logits,
+            "isGANImage": label,
+            "executionTime": execution_time,
         },
     }
 

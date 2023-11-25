@@ -115,11 +115,11 @@ def process_image(image_path, debug, preloaded_models=None):
     label = "False" if any(value < 0 for value in logits.values()) else "True"
 
     detection_output = {
-        "product": "diffusion-model-detector",
-        "detection": {
-            "logit": logits,
-            "IsDiffusionImage?": label,
-            "ExecutionTime": execution_time,
+        "model": "diffusion-model-detector",
+        "inferenceResults": {
+            "logits": logits,
+            "isDiffusionImage": label,
+            "executionTime": execution_time,
         },
     }
 

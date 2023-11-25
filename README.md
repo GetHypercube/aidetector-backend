@@ -66,13 +66,15 @@ In Windows, run the CURL command:
 
 ## Docker usage
 
-To run for development:
+To build and run the container for development (CPU):
 
 `docker build -t aidetector-backend .`
+
 `docker run -p 8080:80 aidetector-backend`
 
-To run for development with GPU support:
+To build and run the container for development (GPU):
 
 `docker build -t aidetector-backend-gpu -f Dockerfile.GPU .`
-`docker run -p 8080:80 aidetector-backend-gpu`
+
+`docker run --gpus all -p 8080:80 aidetector-backend-gpu`
 

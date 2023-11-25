@@ -5,6 +5,7 @@ This module provides a Flask web server with endpoints for detecting images usin
 pre-trained models and for receiving user feedback on the detection results.
 """
 
+from time import time
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
@@ -91,6 +92,7 @@ def detect():
     Saves the file to a temporary location and runs detection models on it.
     Returns the combined results of the detections.
     """
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 
@@ -102,16 +104,24 @@ def detect():
     file_path = '/tmp/' + file.filename
     file.save(file_path)
 
+    # Start timing
+    start_time = time()
+
     # Run DM Detector
     dm_results = dm_process_image(file_path, debug=True, preloaded_models=dm_loaded_models)
 
     # Run GAN Detector
     gan_results = gan_process_image(file_path, debug=True, preloaded_models=gan_loaded_models)
 
+    # End timing
+    end_time = time()
+    total_execution_time = end_time - start_time
+
     # Combine results
     results = {
-        'DM_Detector_Results': dm_results,
-        'GAN_Detector_Results': gan_results
+        'dMDetectorResults': dm_results,
+        'gANDetectorResults': gan_results,
+        'totalExecutionTime': total_execution_time
     }
 
     return jsonify(results)
