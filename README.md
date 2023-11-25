@@ -4,7 +4,7 @@
 
 - Python 3.11.6
 
-## How to Install and Use
+## Installation
 
 Follow these steps to set up and use the DMimageDetection project:
 
