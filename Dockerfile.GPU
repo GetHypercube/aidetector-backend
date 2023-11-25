@@ -1,14 +1,14 @@
-# Use Python 3.11.6 as the base image
-FROM python:3.11.6
-
-# Upgrade pip
-RUN pip install --upgrade pip
+# Use an NVIDIA CUDA base image with Python
+FROM nvidia/cuda:12.3.0-devel-ubuntu22.04
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Install wget and unzip (if not already installed)
-RUN apt-get update && apt-get install -y wget unzip
+# Install system dependencies
+RUN apt-get update && apt-get install -y wget unzip python3-pip python-is-python3
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 # Download and unzip the model weights
 RUN wget -O weights.zip https://aidetector-models.s3.amazonaws.com/weights.zip \
@@ -24,8 +24,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application's code into the container at /app
 COPY . /app
 
-# Make port 8080 available outside this container
-EXPOSE 8080
+# Make port 80 available outside this container
+EXPOSE 80
 
 # Run api.py when the container launches
-CMD ["python", "api.py"]
+CMD ["python", "-u", "api.py"]

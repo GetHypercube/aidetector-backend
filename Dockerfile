@@ -1,14 +1,14 @@
 # Use Python 3.11.6 as the base image
 FROM python:3.11.6
 
-# Upgrade pip
-RUN pip install --upgrade pip
-
 # Set the working directory in the container
 WORKDIR /app
 
 # Install wget and unzip (if not already installed)
 RUN apt-get update && apt-get install -y wget unzip
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 # Download and unzip the model weights
 RUN wget -O weights.zip https://aidetector-models.s3.amazonaws.com/weights.zip \

@@ -52,6 +52,11 @@ def process_image(image_path, debug, preloaded_models=None):
     """
     start_time = time.time()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if debug:
+        if torch.cuda.is_available():
+            print("Running on GPU")
+        else:
+            print("Running on CPU")
     logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)

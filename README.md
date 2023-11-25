@@ -63,3 +63,16 @@ If you want to use the API, first run the server:
 In Windows, run the CURL command:
 
 `curl -X POST -F "file=@real_biggan.png" http://localhost:8080/detect`
+
+## Docker usage
+
+To run for development:
+
+`docker build -t aidetector-backend .`
+`docker run -p 8080:80 aidetector-backend`
+
+To run for development with GPU support:
+
+`docker build -t aidetector-backend-gpu -f Dockerfile.GPU .`
+`docker run -p 8080:80 aidetector-backend-gpu`
+
