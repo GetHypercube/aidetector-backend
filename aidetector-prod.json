@@ -1,0 +1,89 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:110727845776:task-definition/aidetector-prod:1",
+  "containerDefinitions": [
+      {
+          "name": "aidetector-prod",
+          "image": "110727845776.dkr.ecr.us-east-1.amazonaws.com/aidetector:latest",
+          "cpu": 2048,
+          "memory": 4096,
+          "portMappings": [
+              {
+                  "name": "aidetector-prod-80-tcp",
+                  "containerPort": 80,
+                  "hostPort": 80,
+                  "protocol": "tcp",
+                  "appProtocol": "http"
+              }
+          ],
+          "essential": true,
+          "environment": [],
+          "environmentFiles": [],
+          "mountPoints": [],
+          "volumesFrom": [],
+          "ulimits": [],
+          "logConfiguration": {
+              "logDriver": "awslogs",
+              "options": {
+                  "awslogs-create-group": "true",
+                  "awslogs-group": "/ecs/aidetector-prod",
+                  "awslogs-region": "us-east-1",
+                  "awslogs-stream-prefix": "ecs"
+              },
+              "secretOptions": []
+          }
+      }
+  ],
+  "family": "aidetector-prod",
+  "taskRoleArn": "arn:aws:iam::110727845776:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::110727845776:role/backend-role-prod",
+  "networkMode": "awsvpc",
+  "revision": 1,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+      {
+          "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+      },
+      {
+          "name": "ecs.capability.execution-role-awslogs"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+          "name": "ecs.capability.execution-role-ecr-pull"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+          "name": "ecs.capability.task-eni"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+      }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+      "EC2",
+      "FARGATE"
+  ],
+  "requiresCompatibilities": [
+      "FARGATE"
+  ],
+  "cpu": "2048",
+  "memory": "4096",
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2023-11-25T01:49:13.082Z",
+  "registeredBy": "arn:aws:sts::110727845776:assumed-role/OrganizationAccountAccessRole/Luis",
+  "tags": []
+}
