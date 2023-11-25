@@ -90,9 +90,9 @@ def process_image(image_path, debug):
     processed_image_path = compress_and_resize_image(image_path)
     img = Image.open(processed_image_path).convert("RGB")
 
-    for model_name in models_config:
+    for model_name, config in models_config.items():
         model = load_and_process_model(model_name, device)
-        transform = get_transformations(models_config[model_name]["norm_type"])
+        transform = get_transformations(config["norm_type"])
 
         with torch.no_grad():
             transformed_img = transform(img)
@@ -110,7 +110,7 @@ def process_image(image_path, debug):
     execution_time = time.time() - start_time
     label = "False" if any(value < 0 for value in logits.values()) else "True"
 
-    output = {
+    detection_output = {
         "product": "diffusion-model-detector",
         "detection": {
             "logit": logits,
@@ -119,7 +119,7 @@ def process_image(image_path, debug):
         },
     }
 
-    return output
+    return detection_output
 
 
 def main():

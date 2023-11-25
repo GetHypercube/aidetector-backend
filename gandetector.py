@@ -72,7 +72,7 @@ def process_image(image_path, debug):
     execution_time = time.time() - start_time
     label = "False" if any(value < 0 for value in logits.values()) else "True"
 
-    output = {
+    detection_output = {
         "product": "gan-model-detector",
         "detection": {
             "logit": logits,
@@ -81,7 +81,7 @@ def process_image(image_path, debug):
         },
     }
 
-    return output
+    return detection_output
 
 
 def main():
