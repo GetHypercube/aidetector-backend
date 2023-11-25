@@ -1,3 +1,10 @@
+"""
+Flask API for Image Detection
+
+This module provides a Flask web server with endpoints for detecting images using 
+pre-trained models and for receiving user feedback on the detection results.
+"""
+
 from flask import Flask, request, jsonify
 from dmdetector import process_image as dm_process_image
 from gandetector import process_image as gan_process_image
@@ -6,6 +13,12 @@ app = Flask(__name__)
 
 @app.route('/feedback', methods=['POST'])
 def feedback():
+    """
+    Receives user feedback for an image detection.
+
+    Expects a JSON payload with 'file_path' and 'feedback' keys.
+    Prints the received data and returns a confirmation message.
+    """
     print("Received data:", request.data)  # Add this line for debugging
     data = request.json
     if not data or 'file_path' not in data or 'feedback' not in data:
@@ -21,6 +34,13 @@ def feedback():
 
 @app.route('/detect', methods=['POST'])
 def detect():
+    """
+    Detects images using DM and GAN detectors.
+
+    Expects a multipart/form-data request with a file. 
+    Saves the file to a temporary location and runs detection models on it.
+    Returns the combined results of the detections.
+    """
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 

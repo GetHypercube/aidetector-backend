@@ -28,6 +28,7 @@ models_config = {
     },
 }
 
+
 def load_and_process_model(model_name, device):
     """
     Loads and processes the model from the config.
@@ -51,6 +52,7 @@ def load_and_process_model(model_name, device):
 
     return model
 
+
 def get_transformations(norm_type):
     """
     Gets the transformations based on the normalization type.
@@ -60,12 +62,17 @@ def get_transformations(norm_type):
         torchvision.transforms.Compose: Transformations to apply.
     """
     if norm_type == "resnet":
-        return transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        return transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
     else:
         raise ValueError(f"Unknown norm type: {norm_type}")
+
 
 def process_image(image_path, debug):
     """
@@ -101,33 +108,38 @@ def process_image(image_path, debug):
             print_memory_usage()
 
     execution_time = time.time() - start_time
-    label = "True" if any(value < 0 for value in logits.values()) else "False"
+    label = "False" if any(value < 0 for value in logits.values()) else "True"
 
     output = {
         "product": "diffusion-model-detector",
         "detection": {
             "logit": logits,
             "IsDiffusionImage?": label,
-            "ExecutionTime": execution_time
-        }
+            "ExecutionTime": execution_time,
+        },
     }
 
     return output
+
 
 def main():
     """
     Command-line interface for the GAN detector.
     """
-    parser = argparse.ArgumentParser(description="DM Detector Inference on a Single Image")
-    parser.add_argument("--image_path", type=str, required=True, help="Path to the image file")
+    parser = argparse.ArgumentParser(
+        description="DM Detector Inference on a Single Image"
+    )
+    parser.add_argument(
+        "--image_path", type=str, required=True, help="Path to the image file"
+    )
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     args = parser.parse_args()
-    
+
     output = process_image(args.image_path, args.debug)
     return output
+
 
 if __name__ == "__main__":
     output = main()
     print(json.dumps(output, indent=4))
-

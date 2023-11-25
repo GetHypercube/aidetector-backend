@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y wget unzip
 
 # Download and unzip the model weights
 RUN wget -O weights.zip https://aidetector-models.s3.amazonaws.com/weights.zip \
-    && unzip weights.zip -d /app/weights/ \
+    && unzip weights.zip -d /app/ \
     && rm weights.zip
 
 # Copy the requirements.txt file into the container at /app

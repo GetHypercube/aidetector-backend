@@ -27,6 +27,7 @@ models_config = {
     },
 }
 
+
 def load_model(model_name, device):
     """
     Loads the model from the config.
@@ -34,6 +35,7 @@ def load_model(model_name, device):
     model_config = models_config[model_name]
     model = resnet50nodown(device, model_config["model_path"])
     return model
+
 
 def process_image(image_path, debug):
     """
@@ -68,7 +70,7 @@ def process_image(image_path, debug):
             print_memory_usage()
 
     execution_time = time.time() - start_time
-    label = "True" if any(value < 0 for value in logits.values()) else "False"
+    label = "False" if any(value < 0 for value in logits.values()) else "True"
 
     output = {
         "product": "gan-model-detector",
@@ -81,19 +83,27 @@ def process_image(image_path, debug):
 
     return output
 
+
 def main():
     """
     Command-line interface for the GAN detector.
     """
     parser = argparse.ArgumentParser(description="GAN Detector script.")
-    parser.add_argument("--image_path", "-i", type=str, required=True, help="Input image path (PNG or JPEG)")
+    parser.add_argument(
+        "--image_path",
+        "-i",
+        type=str,
+        required=True,
+        help="Input image path (PNG or JPEG)",
+    )
     parser.add_argument("--debug", "-d", action="store_true", help="Enable debug mode")
-    
+
     args = parser.parse_args()
 
     output = process_image(args.image_path, args.debug)
-    
+
     return output
+
 
 if __name__ == "__main__":
     output = main()
