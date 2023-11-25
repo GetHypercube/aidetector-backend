@@ -5,6 +5,7 @@ This module provides a Flask web server with endpoints for detecting images usin
 pre-trained models and for receiving user feedback on the detection results.
 """
 
+from waitress import serve
 from flask import Flask, request, jsonify
 from dmdetector import process_image as dm_process_image
 from gandetector import process_image as gan_process_image
@@ -74,4 +75,4 @@ def detect():
     return jsonify(results)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    serve(app, host="0.0.0.0", port=80)
