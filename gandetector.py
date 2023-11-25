@@ -28,21 +28,25 @@ models_config = {
 }
 
 
-def load_model(model_name, device):
+def load_model(model_name, device, debug):
     """
     Loads the model from the config.
     """
     model_config = models_config[model_name]
     model = resnet50nodown(device, model_config["model_path"])
+    if debug:
+        print(f"Model {model_name} loaded")
+        print_memory_usage()
     return model
 
 
-def process_image(image_path, debug):
+def process_image(image_path, debug, preloaded_models=None):
     """
     Runs inference on a single image using specified models and weights.
     Args:
         image_path (str): Path to the image file for inference.
         debug (bool): Flag to enable debug mode.
+        preloaded_models (dict, optional): Dictionary of preloaded models.
     Returns:
         dict: JSON object with detection results and execution time.
     """
@@ -55,19 +59,17 @@ def process_image(image_path, debug):
     img.load()
 
     for model_name in models_config:
-        if debug:
-            print(f"Model {model_name} processed")
-            print_memory_usage()
+        model = preloaded_models.get(model_name) if preloaded_models else load_model(model_name, device, debug)
 
-        model = load_model(model_name, device)
         logit = model.apply(img)
         logits[model_name] = logit.item() if isinstance(logit, np.ndarray) else logit
 
-        del model
-        torch.cuda.empty_cache()
-
-        if debug:
-            print_memory_usage()
+        if not preloaded_models:  # Only delete model if it was not preloaded
+            del model
+            torch.cuda.empty_cache()
+            if debug:
+                print(f"Model {model_name} unloaded")
+                print_memory_usage()
 
     execution_time = time.time() - start_time
     label = "False" if any(value < 0 for value in logits.values()) else "True"

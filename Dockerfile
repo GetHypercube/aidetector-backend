@@ -28,4 +28,4 @@ COPY . /app
 EXPOSE 80
 
 # Run api.py when the container launches
-CMD ["python", "api.py"]
+CMD ["python", "-u", "api.py"]

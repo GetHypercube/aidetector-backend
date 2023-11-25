@@ -29,7 +29,7 @@ models_config = {
 }
 
 
-def load_and_process_model(model_name, device):
+def load_and_process_model(model_name, device, debug):
     """
     Loads and processes the model from the config.
     Args:
@@ -49,6 +49,9 @@ def load_and_process_model(model_name, device):
 
     model.load_state_dict(state_dict)
     model = model.to(device).eval()
+    if debug:
+        print(f"Model {model_name} loaded")
+        print_memory_usage()
 
     return model
 
@@ -74,14 +77,9 @@ def get_transformations(norm_type):
         raise ValueError(f"Unknown norm type: {norm_type}")
 
 
-def process_image(image_path, debug):
+def process_image(image_path, debug, preloaded_models=None):
     """
     Runs inference on a single image using specified models and weights.
-    Args:
-        image_path (str): Path to the image file for inference.
-        debug (bool): Flag to enable debug mode.
-    Returns:
-        dict: JSON object with detection results and execution time.
     """
     start_time = time.time()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -91,7 +89,8 @@ def process_image(image_path, debug):
     img = Image.open(processed_image_path).convert("RGB")
 
     for model_name, config in models_config.items():
-        model = load_and_process_model(model_name, device)
+        model = preloaded_models.get(model_name) if preloaded_models else load_and_process_model(model_name, device, debug)
+
         transform = get_transformations(config["norm_type"])
 
         with torch.no_grad():
@@ -100,12 +99,12 @@ def process_image(image_path, debug):
             logit = model(transformed_img).cpu().numpy()
             logits[model_name] = np.mean(logit, (2, 3)).item()
 
-        del model
-        torch.cuda.empty_cache()
-
-        if debug:
-            print(f"Model {model_name} processed")
-            print_memory_usage()
+        if not preloaded_models:  # Only delete model if it was not preloaded
+            del model
+            torch.cuda.empty_cache()
+            if debug:
+                print(f"Model {model_name} unloaded")
+                print_memory_usage()
 
     execution_time = time.time() - start_time
     label = "False" if any(value < 0 for value in logits.values()) else "True"
@@ -120,7 +119,6 @@ def process_image(image_path, debug):
     }
 
     return detection_output
-
 
 def main():
     """
