@@ -2,6 +2,7 @@
 weights
 __pycache__
 .vscode
-test.jpg
-test_processed.png
-test.png
+*.jpg
+*.png
+*.jpeg
+*.webp

@@ -44,21 +44,21 @@ pip install -r requirements.txt
 
 To run the detector on an image:
 
-`python .\main.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+`python main.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
 
 For just running the diffusion detector:
 
-`python .\dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+`python dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
 
 For just running the GAN detector:
 
-`python .\gandetector.py --image_path example_images\gan\real\real_biggan.png`
+`python gandetector.py --image_path example_images\gan\real\real_biggan.png`
 
 If you want to see memory usage, you can use the `—debug` flag.
 
 If you want to use the API, first run the server:
 
-`python .\api.py`
+`python api.py`
 
 In Windows, run the CURL command:
 
