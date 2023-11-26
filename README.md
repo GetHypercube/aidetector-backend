@@ -70,11 +70,11 @@ To build and run the container for development (CPU):
 
 `docker build -t aidetector-backend .`
 
-`docker run -p 8080:80 aidetector-backend`
+`docker run --rm -p 8080:80 aidetector-backend`
 
 To build and run the container for development (GPU):
 
 `docker build -t aidetector-backend-gpu -f Dockerfile.GPU .`
 
-`docker run --gpus all -p 8080:80 aidetector-backend-gpu`
+`docker run --rm --gpus all -p 8080:80 aidetector-backend-gpu`
 
