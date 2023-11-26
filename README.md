@@ -21,7 +21,7 @@ python -m venv .env
 3. Activate the Python environment:
 - For Windows:
   ```
-  .\.env\Scripts\activate
+  .env\Scripts\activate
   ```
 - For OSX:
   ```
@@ -38,7 +38,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-6. Download the weights from this [link](https://www.dropbox.com/s/pkj8p3v1gmm8t4p/weights.zip?dl=0) and place them under `.\weights` directory in your project folder.
+6. Download the weights from this [link](https://aidetector-models.s3.amazonaws.com/weights.zip) and place them under `/weights` directory in your project folder.
 
 ## Usage
 
