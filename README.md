@@ -25,7 +25,7 @@ python -m venv .env
   ```
 - For OSX:
   ```
-  source env/bin/activate
+  source .env/bin/activate
   ```
 
 4. Upgrade pip:
@@ -44,15 +44,15 @@ pip install -r requirements.txt
 
 To run the detector on an image:
 
-`python main.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+`python main.py --image_path image.jpg`
 
 For just running the diffusion detector:
 
-`python dmdetector.py --image_path example_images\diffusion\real\biggan_256\biggan_000_302875.png`
+`python dmdetector.py --image_path image.jpg`
 
 For just running the GAN detector:
 
-`python gandetector.py --image_path example_images\gan\real\real_biggan.png`
+`python gandetector.py --image_path image.jpg`
 
 If you want to see memory usage, you can use the `—debug` flag.
 

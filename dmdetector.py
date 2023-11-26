@@ -116,7 +116,8 @@ def process_image(image_path, debug, preloaded_models=None):
                 print_memory_usage()
 
     execution_time = time.time() - start_time
-    label = "False" if any(value < 0 for value in logits.values()) else "True"
+
+    label = "True" if any(value > 0 for value in logits.values()) else "False"
 
     detection_output = {
         "model": "diffusion-model-detector",
