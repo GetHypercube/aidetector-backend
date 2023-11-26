@@ -7,6 +7,7 @@ pre-trained models and for receiving user feedback on the detection results.
 import os
 import uuid
 from time import time
+from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
@@ -23,6 +24,7 @@ from gandetector import (
 )
 
 app = Flask(__name__)
+CORS(app)
 
 # Global variables to store loaded models
 dm_loaded_models = {}
