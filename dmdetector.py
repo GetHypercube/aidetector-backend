@@ -17,12 +17,12 @@ from utils import compress_and_resize_image, print_memory_usage
 
 models_config = {
     "Grag2021_progan": {
-        "model_path": "./weights/diffusion/Grag2021_progan/model_epoch_best.pth",
+        "model_path": "weights/diffusion/Grag2021_progan/model_epoch_best.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
     },
     "Grag2021_latent": {
-        "model_path": "./weights/diffusion/Grag2021_latent/model_epoch_best.pth",
+        "model_path": "weights/diffusion/Grag2021_latent/model_epoch_best.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
     },

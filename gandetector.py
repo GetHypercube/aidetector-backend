@@ -14,13 +14,13 @@ from utils import compress_and_resize_image, print_memory_usage
 
 models_config = {
     "gandetection_resnet50nodown_progan": {
-        "model_path": "./weights/gan/gandetection_resnet50nodown_progan.pth",
+        "model_path": "weights/gan/gandetection_resnet50nodown_progan.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
         "patch_size": None,
     },
     "gandetection_resnet50nodown_stylegan2": {
-        "model_path": "./weights/gan/gandetection_resnet50nodown_stylegan2.pth",
+        "model_path": "weights/gan/gandetection_resnet50nodown_stylegan2.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
         "patch_size": None,
