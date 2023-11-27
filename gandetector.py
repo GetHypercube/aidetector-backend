@@ -11,7 +11,7 @@ import torch
 import numpy as np
 from PIL import Image
 from networks.resnet50nodown import resnet50nodown
-from utils import setup_logger, compress_and_resize_image, print_memory_usage
+from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
 
 logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
 
@@ -98,19 +98,33 @@ def process_image(image_path, preloaded_models=None):
 
     execution_time = time.time() - start_time
 
-    label = "True" if any(value > 0 for value in logits.values()) else "False"
+    # Calculate if the image is fake or not
+
+    # label = "True" if any(value > 0 for value in logits.values()) else "False"
+
+    threshold=0.5
+
+    sigmoid_probs = calculate_sigmoid_probabilities(logits)
+
+    logger.debug("Calculated the sigmoid probabilities of model: %s", model_name)
+
+    for prob in sigmoid_probs.values():
+        if prob >= threshold:
+            isGANImage = True  # Image is classified as fake
+        else:
+            isGANImage = False
 
     detection_output = {
         "model": "gan-model-detector",
         "inferenceResults": {
             "logits": logits,
-            "isGANImage": label,
+            "probabilities": sigmoid_probs,
+            "isGANImage": isGANImage,
             "executionTime": execution_time,
         },
     }
 
     return detection_output
-
 
 def main():
     """

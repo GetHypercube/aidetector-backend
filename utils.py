@@ -16,6 +16,7 @@ Functions:
 
 import os
 import logging
+import numpy as np
 import psutil
 from PIL import Image, UnidentifiedImageError
 
@@ -45,6 +46,22 @@ def setup_logger(name, level=logging.DEBUG):
 
 # Configure logger for utils.py
 logger = setup_logger(__name__)
+
+def calculate_sigmoid_probabilities(logits_dict):
+    """
+    Adds sigmoid probabilities to the logits dictionary.
+
+    Parameters:
+    logits_dict (dict): Dictionary containing logits.
+
+    Returns:
+    dict: Updated dictionary with sigmoid probabilities.
+    """
+    sigmoid_probs = {}
+    for model, logit in logits_dict.items():
+        sigmoid_prob = 1 / (1 + np.exp(-logit))  # Sigmoid function
+        sigmoid_probs[model] = sigmoid_prob
+    return sigmoid_probs
 
 def validate_image_file(image_path):
     """

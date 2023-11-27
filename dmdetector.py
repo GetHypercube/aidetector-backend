@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import networks.resnet_mod as resnet_mod
-from utils import setup_logger, compress_and_resize_image, print_memory_usage
+from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
 
 logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
 
@@ -83,6 +83,13 @@ def get_transformations(norm_type):
 
         raise ValueError(f"Unknown norm type: {norm_type}")
 
+def classify_with_threshold(logits_progan, logits_latent, threshold=0.05):
+    prob_progan = 1 / (1 + np.exp(-logits_progan))  # Convert logits to probabilities using sigmoid
+    prob_latent = 1 / (1 + np.exp(-logits_latent))
+
+    # Classify based on the threshold
+    classification = (prob_progan >= threshold) | (prob_latent >= threshold)
+    return classification  # Returns True for 'fake', False for 'not fake
 
 def process_image(image_path, preloaded_models=None):
     """
@@ -152,13 +159,28 @@ def process_image(image_path, preloaded_models=None):
 
     execution_time = time.time() - start_time
 
-    label = "True" if any(value > 0 for value in logits.values()) else "False"
+    # Calculate if the image is fake or not
+
+    # label = "True" if any(value > 0 for value in logits.values()) else "False"
+
+    threshold=0.5
+
+    sigmoid_probs = calculate_sigmoid_probabilities(logits)
+
+    logger.debug("Calculated the sigmoid probabilities of model: %s", model_name)
+
+    for prob in sigmoid_probs.values():
+        if prob >= threshold:
+            isDiffusionImage = True  # Image is classified as fake
+        else:
+            isDiffusionImage = False
 
     detection_output = {
         "model": "diffusion-model-detector",
         "inferenceResults": {
             "logits": logits,
-            "isDiffusionImage": label,
+            "probabilities": sigmoid_probs,
+            "isDiffusionImage": isDiffusionImage,
             "executionTime": execution_time,
         },
     }
