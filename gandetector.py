@@ -13,7 +13,7 @@ from PIL import Image
 from networks.resnet50nodown import resnet50nodown
 from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
 
-logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
+logger = setup_logger(__name__)  # Default level can be INFO
 
 models_config = {
     "gandetection_resnet50nodown_progan": {
@@ -111,6 +111,7 @@ def process_image(image_path, preloaded_models=None):
     for prob in sigmoid_probs.values():
         if prob >= threshold:
             isGANImage = True  # Image is classified as fake
+            break
         else:
             isGANImage = False
 
@@ -153,7 +154,7 @@ def main():
         "CRITICAL": logging.CRITICAL,
     }
     setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.INFO)
+        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
     )
     return process_image(args.image_path)
 

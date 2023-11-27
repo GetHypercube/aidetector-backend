@@ -14,7 +14,7 @@ import torchvision.transforms as transforms
 import networks.resnet_mod as resnet_mod
 from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
 
-logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
+logger = setup_logger(__name__)
 
 models_config = {
     "Grag2021_progan": {
@@ -65,8 +65,6 @@ def get_transformations(norm_type):
     Returns:
         torchvision.transforms.Compose: Transformations to apply.
     """
-
-    logger.debug("Inside get_transformation")
 
     if norm_type == "resnet":
         return transforms.Compose(
@@ -127,22 +125,14 @@ def process_image(image_path, preloaded_models=None):
             else load_model(model_name, device)
         )
 
-        logger.debug("Before get_transformations")
-
         transform = get_transformations(config["norm_type"])
-
-        logger.debug("After get_transformations")
 
         try:
             with torch.no_grad():
                 transformed_img = transform(img)
-                logger.debug("Executed transform(img)")
                 transformed_img = transformed_img.unsqueeze(0).to(device)
-                logger.debug("Executed transformed_img.unsqueeze(0).to(device)")
                 logit = model(transformed_img).cpu().numpy()
-                logger.debug("Executed model(transformed_img).cpu().numpy()")
                 logits[model_name] = np.mean(logit, (2, 3)).item()
-                logger.debug("Executed np.mean(logit, (2, 3)).item()")
 
         except Exception as e:
             logger.error("Error processing model %s: %s", model_name, e)
@@ -159,9 +149,9 @@ def process_image(image_path, preloaded_models=None):
 
     execution_time = time.time() - start_time
 
-    # Calculate if the image is fake or not
-
     # label = "True" if any(value > 0 for value in logits.values()) else "False"
+
+    # Calculate if the image is fake or not
 
     threshold=0.5
 
@@ -172,15 +162,27 @@ def process_image(image_path, preloaded_models=None):
     for prob in sigmoid_probs.values():
         if prob >= threshold:
             isDiffusionImage = True  # Image is classified as fake
+            break
         else:
             isDiffusionImage = False
+
+    # Fuse both models outputs
+
+    fused_logit = np.mean(list(logits.values()))
+    fused_sigmoid_prob = np.mean(list(sigmoid_probs.values()))
+
+    # Classification based on fused output
+    isDiffusionImageFused = bool(fused_sigmoid_prob >= threshold)  # Convert to Python bool
 
     detection_output = {
         "model": "diffusion-model-detector",
         "inferenceResults": {
             "logits": logits,
             "probabilities": sigmoid_probs,
+            "fusedLogit": fused_logit,
+            "fusedProbability": fused_sigmoid_prob,
             "isDiffusionImage": isDiffusionImage,
+            "isDiffusionImageFused": isDiffusionImageFused,
             "executionTime": execution_time,
         },
     }
@@ -215,7 +217,7 @@ def main():
         "CRITICAL": logging.CRITICAL,
     }
     setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.INFO)
+        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
     )
 
     return process_image(args.image_path)

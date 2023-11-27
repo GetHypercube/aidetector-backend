@@ -17,7 +17,7 @@ import argparse
 import json
 import logging
 from time import time
-from utils import setup_logger
+from utils import setup_logger, validate_image_file
 from dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
@@ -29,7 +29,7 @@ from gandetector import (
     models_config as gan_models_config,
 )
 
-logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
+logger = setup_logger(__name__)  # Default level can be INFO
 
 def main():
     """
@@ -58,8 +58,16 @@ def main():
         "CRITICAL": logging.CRITICAL,
     }
     setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.INFO)
+        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
     )
+
+    # Validate the image file
+    try:
+        validate_image_file(args.image_path)
+    except ValueError as e:
+        return logger.error("Image %s is not valid", args.image_path)
+
+    logger.info("Image %s is valid", args.image_path)
 
     # Start timing
     start_time = time()
