@@ -2,7 +2,7 @@
 Diffusor detector: Inference on a single image using pre-trained models for GAN detection.
 It prints out the logits returned by each model and the final label based on these logits.
 """
-
+import traceback
 import argparse
 import time
 import json
@@ -118,11 +118,17 @@ def process_image(image_path, preloaded_models=None):
 
         logger.debug("Executed get_transformations")
 
-        with torch.no_grad():
-            transformed_img = transform(img)
-            transformed_img = transformed_img.unsqueeze(0).to(device)
-            logit = model(transformed_img).cpu().numpy()
-            logits[model_name] = np.mean(logit, (2, 3)).item()
+        try:
+            with torch.no_grad():
+                transformed_img = transform(img)
+                transformed_img = transformed_img.unsqueeze(0).to(device)
+                logit = model(transformed_img).cpu().numpy()
+                logits[model_name] = np.mean(logit, (2, 3)).item()
+
+        except Exception as e:
+            logger.error("Error processing model %s: %s", model_name, e)
+            logger.error("Traceback: %s", traceback.format_exc())  # Log the full traceback
+            continue  # Optionally, continue with the next iteration of the loop
 
         logger.info("Calculated the logit of model: %s", model_name)
 
