@@ -1,8 +1,6 @@
 """
-DM Detector: A module for running inference on single images using pre-trained models.
-Supports different models and applies necessary transformations before prediction.
-
-Prints out the logits returned by each model and the final label based on these logits.
+Diffusor detector: Inference on a single image using pre-trained models for GAN detection.
+It prints out the logits returned by each model and the final label based on these logits.
 """
 
 import argparse

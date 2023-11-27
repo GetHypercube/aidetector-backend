@@ -33,7 +33,12 @@ models_config = {
 
 def load_model(model_name, device):
     """
-    Loads the model from the config.
+    Loads and processes the model from the config.
+    Args:
+        model_name (str): Name of the model to load.
+        device (torch.device): Device to use for the model.
+    Returns:
+        torch.nn.Module: Loaded and processed model.
     """
     model_config = models_config[model_name]
     model = resnet50nodown(device, model_config["model_path"])

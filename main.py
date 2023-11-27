@@ -13,13 +13,14 @@ Functions:
     main(): Parses command-line arguments and runs image detection using DM and GAN detectors.
 """
 
-
 import argparse
 import json
 import logging
 from dmdetector import process_image as dm_process_image
 from gandetector import process_image as gan_process_image
 from utils import setup_logger
+
+logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
 
 def main():
     """
