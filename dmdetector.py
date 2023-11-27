@@ -65,6 +65,9 @@ def get_transformations(norm_type):
     Returns:
         torchvision.transforms.Compose: Transformations to apply.
     """
+
+    logger.debug("Inside get_transformation")
+
     if norm_type == "resnet":
         return transforms.Compose(
             [
@@ -75,6 +78,9 @@ def get_transformations(norm_type):
             ]
         )
     else:
+
+        logger.error("Unknown norm type %s", norm_type)
+
         raise ValueError(f"Unknown norm type: {norm_type}")
 
 
@@ -114,9 +120,11 @@ def process_image(image_path, preloaded_models=None):
             else load_model(model_name, device)
         )
 
+        logger.debug("Before get_transformations")
+
         transform = get_transformations(config["norm_type"])
 
-        logger.debug("Executed get_transformations")
+        logger.debug("After get_transformations")
 
         try:
             with torch.no_grad():
