@@ -18,7 +18,6 @@ import os
 import psutil
 from PIL import Image, UnidentifiedImageError
 
-
 def validate_image_file(image_path):
     """
     Validates that the image has a valid file extension and is a valid image.

@@ -14,7 +14,7 @@ import torch
 from utils import print_memory_usage, validate_image_file
 from dmdetector import (
     process_image as dm_process_image,
-    load_and_process_model as load_dm_model,
+    load_model as load_dm_model,
     models_config as dm_models_config,
 )
 from gandetector import (
@@ -30,12 +30,11 @@ CORS(app)
 dm_loaded_models = {}
 gan_loaded_models = {}
 
-
 def preload_models():
     """
     Preloads models into memory for faster inference.
     """
-    print("Preloading models...")
+    logger.debug("Preloading models...")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -55,7 +54,6 @@ def preload_models():
 
     print("Model preloading complete!")
 
-
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
     """
@@ -74,14 +72,12 @@ def debug_preload_models():
         200,
     )
 
-
 @app.route("/", methods=["GET"])
 def hello_world():
     """
     Responds with a 'Hello world' message.
     """
     return jsonify({"message": "Hello world"}), 200
-
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
@@ -102,7 +98,6 @@ def feedback():
     print(f"Feedback received for file: {file_path}, User Feedback: {user_feedback}")
 
     return jsonify({"message": "Feedback received successfully"})
-
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -168,7 +163,6 @@ def detect():
     }
 
     return jsonify(results)
-
 
 if __name__ == "__main__":
     preload_models()

@@ -29,7 +29,7 @@ models_config = {
 }
 
 
-def load_and_process_model(model_name, device, debug):
+def load_model(model_name, device, debug):
     """
     Loads and processes the model from the config.
     Args:
@@ -112,7 +112,7 @@ def process_image(image_path, debug, preloaded_models=None):
         model = (
             preloaded_models.get(model_name)
             if preloaded_models
-            else load_and_process_model(model_name, device, debug)
+            else load_model(model_name, device, debug)
         )
 
         transform = get_transformations(config["norm_type"])

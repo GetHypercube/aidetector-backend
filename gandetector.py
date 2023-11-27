@@ -68,7 +68,7 @@ def process_image(image_path, debug, preloaded_models=None):
 
     print("DEBUG: Before looping each model")
 
-    for model_name in models_config:
+    for model_name, model_config in models_config.items():
 
         print(f"DEBUG: Processing model {model_name}")
 
