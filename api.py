@@ -34,7 +34,7 @@ def preload_models():
     """
     Preloads models into memory for faster inference.
     """
-    logger.debug("Preloading models...")
+    print("Preloading models...")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
