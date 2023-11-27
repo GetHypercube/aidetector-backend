@@ -80,25 +80,34 @@ def get_transformations(norm_type):
 def process_image(image_path, debug, preloaded_models=None):
     """
     Runs inference on a single image using specified models and weights.
+    Args:
+        image_path (str): Path to the image file for inference.
+        debug (bool): Flag to enable debug mode.
+        preloaded_models (dict, optional): Dictionary of preloaded models.
+    Returns:
+        dict: JSON object with detection results and execution time.
     """
     start_time = time.time()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if debug:
         if torch.cuda.is_available():
-            print("Running on GPU")
+            print("DEBUG: Running on GPU")
         else:
-            print("Running on CPU")
+            print("DEBUG: Running on CPU")
     logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)
 
-    print("DEBUG: Image compressed and resized (2)")
+    print("DEBUG: Image compressed and resized")
 
     img = Image.open(processed_image_path).convert("RGB")
+    img.load()
+
+    print("DEBUG: Before looping each model")
 
     for model_name, config in models_config.items():
 
-        print("DEBUG: Looping models (3")
+        print(f"DEBUG: Processing model {model_name}")
 
         model = (
             preloaded_models.get(model_name)
@@ -108,13 +117,15 @@ def process_image(image_path, debug, preloaded_models=None):
 
         transform = get_transformations(config["norm_type"])
 
-        print("DEBUG: Executed get_transformation (4)")
+        print("DEBUG: Executed get_transformation")
 
         with torch.no_grad():
             transformed_img = transform(img)
             transformed_img = transformed_img.unsqueeze(0).to(device)
             logit = model(transformed_img).cpu().numpy()
             logits[model_name] = np.mean(logit, (2, 3)).item()
+
+        print(f"DEBUG: Calculated the logits of model {model_name}")
 
         if not preloaded_models:  # Only delete model if it was not preloaded
             del model

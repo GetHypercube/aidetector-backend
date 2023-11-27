@@ -33,6 +33,7 @@ def validate_image_file(image_path):
 
     # Check file extension
     if not image_path.lower().endswith(valid_extensions):
+        print("DEBUG: Unsupported file format. Accepts only JPEG, PNG, and WebP.")
         raise ValueError("Unsupported file format. Accepts only JPEG, PNG, and WebP.")
 
     # Validate with PIL
@@ -41,6 +42,7 @@ def validate_image_file(image_path):
             img.verify()  # Verifies that an image can be opened
     except (UnidentifiedImageError, IOError) as exc:
         # Explicitly re-raising with context from the original exception
+        print("DEBUG: Invalid image file or path.")
         raise ValueError("Invalid image file or path.") from exc
 
     return True

@@ -54,16 +54,24 @@ def process_image(image_path, debug, preloaded_models=None):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if debug:
         if torch.cuda.is_available():
-            print("Running on GPU")
+            print("DEBUG: Running on GPU")
         else:
-            print("Running on CPU")
+            print("DEBUG: Running on CPU")
     logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)
+
+    print("DEBUG: Image compressed and resized")
+
     img = Image.open(processed_image_path).convert("RGB")
     img.load()
 
+    print("DEBUG: Before looping each model")
+
     for model_name in models_config:
+
+        print(f"DEBUG: Processing model {model_name}")
+
         model = (
             preloaded_models.get(model_name)
             if preloaded_models
@@ -72,6 +80,8 @@ def process_image(image_path, debug, preloaded_models=None):
 
         logit = model.apply(img)
         logits[model_name] = logit.item() if isinstance(logit, np.ndarray) else logit
+
+        print(f"DEBUG: Calculated the logits of model {model_name}")
 
         if not preloaded_models:  # Only delete model if it was not preloaded
             del model

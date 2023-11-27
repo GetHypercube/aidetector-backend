@@ -129,7 +129,7 @@ def detect():
     # Save the file to a temporary location
     file.save(file_path)
 
-    print("DEBUG: Image saved in temporal location (1)")
+    print(f"DEBUG: Image saved in temporal location {file_path} (1)")
 
     # Validate the image file
     try:
@@ -142,10 +142,14 @@ def detect():
     # Start timing
     start_time = time()
 
+    print("DEBUG: DM Detector (3)")
+
     # Run DM Detector
     dm_results = dm_process_image(
         file_path, debug=True, preloaded_models=dm_loaded_models
     )
+
+    print("DEBUG: GAN Detector (4)")
 
     # Run GAN Detector
     gan_results = gan_process_image(
