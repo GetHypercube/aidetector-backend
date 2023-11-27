@@ -91,9 +91,15 @@ def process_image(image_path, debug, preloaded_models=None):
     logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)
+
+    print("DEBUG: Image compressed and resized (2)")
+
     img = Image.open(processed_image_path).convert("RGB")
 
     for model_name, config in models_config.items():
+
+        print("DEBUG: Looping models (3")
+
         model = (
             preloaded_models.get(model_name)
             if preloaded_models
@@ -101,6 +107,8 @@ def process_image(image_path, debug, preloaded_models=None):
         )
 
         transform = get_transformations(config["norm_type"])
+
+        print("DEBUG: Executed get_transformation (4)")
 
         with torch.no_grad():
             transformed_img = transform(img)

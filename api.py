@@ -129,11 +129,15 @@ def detect():
     # Save the file to a temporary location
     file.save(file_path)
 
+    print("DEBUG: Image saved in temporal location (1)")
+
     # Validate the image file
     try:
         validate_image_file(file_path)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+    print("DEBUG: Image validated (2)")
 
     # Start timing
     start_time = time()

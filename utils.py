@@ -57,7 +57,6 @@ def compress_and_resize_image(image_path, max_size=(1024, 1024)):
     Returns:
         str: Path to the processed image.
     """
-
     # Open and process the image
     with Image.open(image_path) as img:
         if img.size[0] > max_size[0] or img.size[1] > max_size[1]:
