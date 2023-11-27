@@ -121,9 +121,13 @@ def process_image(image_path, preloaded_models=None):
         try:
             with torch.no_grad():
                 transformed_img = transform(img)
+                logger.debug("Executed transform(img)")
                 transformed_img = transformed_img.unsqueeze(0).to(device)
+                logger.debug("Executed transformed_img.unsqueeze(0).to(device)")
                 logit = model(transformed_img).cpu().numpy()
+                logger.debug("Executed model(transformed_img).cpu().numpy()")
                 logits[model_name] = np.mean(logit, (2, 3)).item()
+                logger.debug("Executed np.mean(logit, (2, 3)).item()")
 
         except Exception as e:
             logger.error("Error processing model %s: %s", model_name, e)
