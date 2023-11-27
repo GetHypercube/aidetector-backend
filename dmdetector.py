@@ -172,7 +172,29 @@ def process_image(image_path, preloaded_models=None):
     fused_sigmoid_prob = np.mean(list(sigmoid_probs.values()))
 
     # Classification based on fused output
+
     isDiffusionImageFused = bool(fused_sigmoid_prob >= threshold)  # Convert to Python bool
+
+    # @TODO: Calibration with platt scaling
+
+    # Implementing Calibration:
+    # Collect a Calibration Dataset: You need a small set of labeled data (real and synthetic images) that your model has not seen during training.
+
+    # Fit Platt Scaling: Use the logits from your model(s) on this calibration dataset to fit a logistic regression model. This model will learn to adjust the logits to better reflect the true probabilities.
+
+    # Apply the Fitted Model: Use this fitted model to transform the logits of new images before passing them through the sigmoid function.
+
+    # from sklearn.linear_model import LogisticRegression
+
+    # Example calibration dataset
+    # X_calib = [[logit1], [logit2], ...]  # Logits from your model on calibration data
+    # y_calib = [label1, label2, ...]  # True labels (0 or 1)
+
+    # Fit Platt scaling model
+    # platt_model = LogisticRegression().fit(X_calib, y_calib)
+
+    # Use this model to transform new logits
+    # adjusted_logit = platt_model.predict_proba([new_logit])[0][1]
 
     detection_output = {
         "model": "diffusion-model-detector",
