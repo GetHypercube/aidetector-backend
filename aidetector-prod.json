@@ -3,8 +3,8 @@
       {
           "name": "aidetector-prod",
           "image": "110727845776.dkr.ecr.us-east-1.amazonaws.com/aidetector:latest",
-          "cpu": 2048,
-          "memory": 4096,
+          "cpu": 4096,
+          "memory": 16384,
           "portMappings": [
               {
                   "name": "aidetector-prod-80-tcp",
