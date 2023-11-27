@@ -11,7 +11,7 @@ from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
-from utils import print_memory_usage, validate_image_file
+from utils import setup_logger, print_memory_usage, validate_image_file
 from dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
@@ -22,6 +22,9 @@ from gandetector import (
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
+
+# Setup logger for Flask application
+logger = setup_logger(__name__)
 
 app = Flask(__name__)
 CORS(app)
@@ -34,30 +37,30 @@ def preload_models():
     """
     Preloads models into memory for faster inference.
     """
-    print("Preloading models...")
+    logger.info("Starting model preloading...")
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Preload DM models
     for model_name in dm_models_config:
-        print(f"Loading DM model: {model_name}")
-        dm_loaded_models[model_name] = load_dm_model(model_name, device, debug=True)
-        print(f"Loaded DM model: {model_name}")
+        dm_loaded_models[model_name] = load_dm_model(model_name, device)
+
+        logger.info("Loaded DM model: %s", model_name)
         print_memory_usage()
 
     # Preload GAN models
     for model_name in gan_models_config:
-        print(f"Loading GAN model: {model_name}")
-        gan_loaded_models[model_name] = load_gan_model(model_name, device, debug=True)
-        print(f"Loaded GAN model: {model_name}")
+        gan_loaded_models[model_name] = load_gan_model(model_name, device)
+
+        logger.info("Loaded GAN model: %s", model_name)
         print_memory_usage()
 
-    print("Model preloading complete!")
+    logger.info("Model preloading complete!")
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
     """
-    Preloads and returns preloaded models
+    Responds with a list of preloaded models.
     """
 
     dm_models_loaded = list(dm_loaded_models.keys())
@@ -77,25 +80,22 @@ def hello_world():
     """
     Responds with a 'Hello world' message.
     """
-    return jsonify({"message": "Hello world"}), 200
+    return jsonify({"message": "Hello world!"}), 200
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
     """
     Receives user feedback for an image detection.
 
-    Expects a JSON payload with 'file_path' and 'feedback' keys.
+    Expects a JSON payload with 'file_name' and 'feedback' keys.
     Prints the received data and returns a confirmation message.
     """
-    print("Received data:", request.data)  # Add this line for debugging
+
+    logger.debug("Received feedback data: %s", request.data)
+
     data = request.json
-    if not data or "file_path" not in data or "feedback" not in data:
-        return jsonify({"error": "Missing file_path or feedback"}), 400
-
-    file_path = data["file_path"]
-    user_feedback = data["feedback"]
-
-    print(f"Feedback received for file: {file_path}, User Feedback: {user_feedback}")
+    if not data or "file_name" not in data or "feedback" not in data:
+        return jsonify({"error": "Missing file_name or feedback"}), 400
 
     return jsonify({"message": "Feedback received successfully"})
 
@@ -124,7 +124,7 @@ def detect():
     # Save the file to a temporary location
     file.save(file_path)
 
-    print(f"DEBUG: Image saved in temporal location {file_path} (1)")
+    logger.info("Image saved in temporal the location: %s", file_path)
 
     # Validate the image file
     try:
@@ -132,23 +132,23 @@ def detect():
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
-    print("DEBUG: Image validated (2)")
+    logger.info("Image %s is valid", file_path)
 
     # Start timing
     start_time = time()
 
-    print("DEBUG: DM Detector (3)")
+    logger.info("Starting DM detection on %s", file_path)
 
     # Run DM Detector
     dm_results = dm_process_image(
-        file_path, debug=True, preloaded_models=dm_loaded_models
+        file_path, preloaded_models=dm_loaded_models
     )
 
-    print("DEBUG: GAN Detector (4)")
+    logger.info("Starting GAN detection on %s", file_path)
 
     # Run GAN Detector
     gan_results = gan_process_image(
-        file_path, debug=True, preloaded_models=gan_loaded_models
+        file_path, preloaded_models=gan_loaded_models
     )
 
     # End timing

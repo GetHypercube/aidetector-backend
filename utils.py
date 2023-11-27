@@ -15,8 +15,36 @@ Functions:
 """
 
 import os
+import logging
 import psutil
 from PIL import Image, UnidentifiedImageError
+
+def setup_logger(name, level=logging.DEBUG):
+    """
+    Sets up and returns a logger with the specified name.
+
+    Args:
+        name (str): Name of the logger.
+
+    Returns:
+        logging.Logger: Configured logger.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Create handler and formatter
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    # Avoid duplicate logging
+    if not logger.handlers:
+        logger.addHandler(handler)
+
+    return logger
+
+# Configure logger for utils.py
+logger = setup_logger(__name__)
 
 def validate_image_file(image_path):
     """
@@ -32,7 +60,7 @@ def validate_image_file(image_path):
 
     # Check file extension
     if not image_path.lower().endswith(valid_extensions):
-        print("DEBUG: Unsupported file format. Accepts only JPEG, PNG, and WebP.")
+        logger.warning("Unsupported file format. Accepts only JPEG, PNG, and WebP.")
         raise ValueError("Unsupported file format. Accepts only JPEG, PNG, and WebP.")
 
     # Validate with PIL
@@ -40,8 +68,7 @@ def validate_image_file(image_path):
         with Image.open(image_path) as img:
             img.verify()  # Verifies that an image can be opened
     except (UnidentifiedImageError, IOError) as exc:
-        # Explicitly re-raising with context from the original exception
-        print("DEBUG: Invalid image file or path.")
+        logger.warning("Invalid image file or path.")
         raise ValueError("Invalid image file or path.") from exc
 
     return True
@@ -75,4 +102,5 @@ def print_memory_usage():
     """
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
-    print(f"Memory used: {mem_info.rss / (1024 * 1024):.2f} MB")
+    memory_used = mem_info.rss / (1024 * 1024)
+    logger.info("Memory used: %.2f MB", memory_used)

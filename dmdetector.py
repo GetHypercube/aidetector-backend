@@ -8,12 +8,15 @@ Prints out the logits returned by each model and the final label based on these 
 import argparse
 import time
 import json
+import logging
 import torch
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import networks.resnet_mod as resnet_mod
-from utils import compress_and_resize_image, print_memory_usage
+from utils import setup_logger, compress_and_resize_image, print_memory_usage
+
+logger = setup_logger(__name__, logging.INFO)  # Default level can be INFO
 
 models_config = {
     "Grag2021_progan": {
@@ -29,7 +32,7 @@ models_config = {
 }
 
 
-def load_model(model_name, device, debug):
+def load_model(model_name, device):
     """
     Loads and processes the model from the config.
     Args:
@@ -49,9 +52,9 @@ def load_model(model_name, device, debug):
 
     model.load_state_dict(state_dict)
     model = model.to(device).eval()
-    if debug:
-        print(f"Model {model_name} loaded")
-        print_memory_usage()
+
+    logger.info("Model %s loaded", model_name)
+    print_memory_usage()
 
     return model
 
@@ -77,47 +80,45 @@ def get_transformations(norm_type):
         raise ValueError(f"Unknown norm type: {norm_type}")
 
 
-def process_image(image_path, debug, preloaded_models=None):
+def process_image(image_path, preloaded_models=None):
     """
     Runs inference on a single image using specified models and weights.
     Args:
         image_path (str): Path to the image file for inference.
-        debug (bool): Flag to enable debug mode.
         preloaded_models (dict, optional): Dictionary of preloaded models.
     Returns:
         dict: JSON object with detection results and execution time.
     """
     start_time = time.time()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    if debug:
-        if torch.cuda.is_available():
-            print("DEBUG: Running on GPU")
-        else:
-            print("DEBUG: Running on CPU")
+    if torch.cuda.is_available():
+        logger.info("Running on GPU")
+    else:
+        logger.info("Running on CPU")
     logits = {}
 
     processed_image_path = compress_and_resize_image(image_path)
 
-    print("DEBUG: Image compressed and resized")
+    logger.info("Image %s resized and compressed", image_path)
 
     img = Image.open(processed_image_path).convert("RGB")
     img.load()
 
-    print("DEBUG: Before looping each model")
+    logger.debug("Before looping all models")
 
     for model_name, config in models_config.items():
 
-        print(f"DEBUG: Processing model {model_name}")
+        logger.info("Processing the model: %s", model_name)
 
         model = (
             preloaded_models.get(model_name)
             if preloaded_models
-            else load_model(model_name, device, debug)
+            else load_model(model_name, device)
         )
 
         transform = get_transformations(config["norm_type"])
 
-        print("DEBUG: Executed get_transformation")
+        logger.debug("Executed get_transformations")
 
         with torch.no_grad():
             transformed_img = transform(img)
@@ -125,14 +126,13 @@ def process_image(image_path, debug, preloaded_models=None):
             logit = model(transformed_img).cpu().numpy()
             logits[model_name] = np.mean(logit, (2, 3)).item()
 
-        print(f"DEBUG: Calculated the logits of model {model_name}")
+        logger.info("Calculated the logit of model: %s", model_name)
 
         if not preloaded_models:  # Only delete model if it was not preloaded
             del model
             torch.cuda.empty_cache()
-            if debug:
-                print(f"Model {model_name} unloaded")
-                print_memory_usage()
+            logger.info("Model %s unloaded", model_name)
+            print_memory_usage()
 
     execution_time = time.time() - start_time
 
@@ -152,19 +152,35 @@ def process_image(image_path, debug, preloaded_models=None):
 
 def main():
     """
-    Command-line interface for the GAN detector.
+    Command-line interface for the Diffusor detector.
     """
     parser = argparse.ArgumentParser(
-        description="DM Detector Inference on a Single Image"
+        description="Diffusion detector inference on a single image"
     )
     parser.add_argument(
         "--image_path", type=str, required=True, help="Path to the image file"
     )
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+    parser.add_argument(
+        "--log_level",
+        type=str,
+        default="INFO",
+        help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+    )
 
     args = parser.parse_args()
+    # Configure logger
+    log_levels = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+    setup_logger(
+        __name__, log_levels.get(args.log_level.upper(), logging.INFO)
+    )
 
-    return process_image(args.image_path, args.debug)
+    return process_image(args.image_path)
 
 
 if __name__ == "__main__":
