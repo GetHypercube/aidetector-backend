@@ -29,7 +29,13 @@
                   "awslogs-stream-prefix": "ecs"
               },
               "secretOptions": []
-          }
+          },
+          "resourceRequirements": [
+            {
+                "value": "1",
+                "type": "GPU"
+            }
+        ]
       }
   ],
   "family": "aidetector-prod",
