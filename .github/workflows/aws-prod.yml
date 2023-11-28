@@ -30,7 +30,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: aidetector
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY -f Dockerfile.GPU .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY" >> $GITHUB_OUTPUT
 
@@ -46,7 +46,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: aidetector-prod
+          service: aidetector-ec2
           cluster: aidetector-prod
           wait-for-service-stability: true
   
