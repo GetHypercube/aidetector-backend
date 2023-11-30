@@ -1,9 +1,10 @@
+import os
 import requests
 from utils import encode_image
 
 # Load the API key from an environment variable
-# openai.api_key = os.getenv("OPENAI_API_KEY")
-api_key = "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"
+api_key = os.getenv("OPENAI_API_KEY")
+# api_key = "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"
 
 def craft_explanation(image_path, analysis_results):
     """
