@@ -11,7 +11,12 @@ import torch
 import numpy as np
 from PIL import Image
 from networks.resnet50nodown import resnet50nodown
-from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
+from utils import (
+    setup_logger,
+    compress_and_resize_image,
+    print_memory_usage,
+    calculate_sigmoid_probabilities,
+)
 
 logger = setup_logger(__name__)  # Default level can be INFO
 
@@ -74,7 +79,6 @@ def process_image(image_path, preloaded_models=None):
     img.load()
 
     for model_name, model_config in models_config.items():
-
         logger.info("Processing the model: %s", model_name)
 
         model = (
@@ -100,7 +104,7 @@ def process_image(image_path, preloaded_models=None):
 
     # label = "True" if any(value > 0 for value in logits.values()) else "False"
 
-    threshold=0.5
+    threshold = 0.5
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
@@ -124,6 +128,7 @@ def process_image(image_path, preloaded_models=None):
     }
 
     return detection_output
+
 
 def main():
     """
@@ -151,9 +156,7 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
-    )
+    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
     return process_image(args.image_path)
 
 

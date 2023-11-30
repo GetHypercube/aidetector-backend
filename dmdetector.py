@@ -12,7 +12,12 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import networks.resnet_mod as resnet_mod
-from utils import setup_logger, compress_and_resize_image, print_memory_usage, calculate_sigmoid_probabilities
+from utils import (
+    setup_logger,
+    compress_and_resize_image,
+    print_memory_usage,
+    calculate_sigmoid_probabilities,
+)
 
 logger = setup_logger(__name__)
 
@@ -76,18 +81,21 @@ def get_transformations(norm_type):
             ]
         )
     else:
-
         logger.error("Unknown norm type %s", norm_type)
 
         raise ValueError(f"Unknown norm type: {norm_type}")
 
+
 def classify_with_threshold(logits_progan, logits_latent, threshold=0.05):
-    prob_progan = 1 / (1 + np.exp(-logits_progan))  # Convert logits to probabilities using sigmoid
+    prob_progan = 1 / (
+        1 + np.exp(-logits_progan)
+    )  # Convert logits to probabilities using sigmoid
     prob_latent = 1 / (1 + np.exp(-logits_latent))
 
     # Classify based on the threshold
     classification = (prob_progan >= threshold) | (prob_latent >= threshold)
     return classification  # Returns True for 'fake', False for 'not fake
+
 
 def process_image(image_path, preloaded_models=None):
     """
@@ -114,7 +122,6 @@ def process_image(image_path, preloaded_models=None):
     img.load()
 
     for model_name, config in models_config.items():
-
         logger.info("Processing the model: %s", model_name)
 
         model = (
@@ -134,7 +141,9 @@ def process_image(image_path, preloaded_models=None):
 
         except Exception as e:
             logger.error("Error processing model %s: %s", model_name, e)
-            logger.error("Traceback: %s", traceback.format_exc())  # Log the full traceback
+            logger.error(
+                "Traceback: %s", traceback.format_exc()
+            )  # Log the full traceback
             continue  # Optionally, continue with the next iteration of the loop
 
         logger.info("Calculated the logit of model: %s", model_name)
@@ -151,7 +160,7 @@ def process_image(image_path, preloaded_models=None):
 
     # Calculate if the image is fake or not
 
-    threshold=0.5
+    threshold = 0.5
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
@@ -171,16 +180,19 @@ def process_image(image_path, preloaded_models=None):
 
     # Classification based on fused output
 
-    isDiffusionImageFused = bool(fused_sigmoid_prob >= threshold)  # Convert to Python bool
+    isDiffusionImageFused = bool(
+        fused_sigmoid_prob >= threshold
+    )  # Convert to Python bool
 
     # @TODO: Calibration with platt scaling
 
     # Implementing Calibration:
-    # Collect a Calibration Dataset: You need a small set of labeled data (real and synthetic images) that your model has not seen during training.
-
-    # Fit Platt Scaling: Use the logits from your model(s) on this calibration dataset to fit a logistic regression model. This model will learn to adjust the logits to better reflect the true probabilities.
-
-    # Apply the Fitted Model: Use this fitted model to transform the logits of new images before passing them through the sigmoid function.
+    # Collect a Calibration Dataset: You need a small set of labeled data (real and synthetic images) that your 
+    # model has not seen during training.
+    # Fit Platt Scaling: Use the logits from your model(s) on this calibration dataset to fit a logistic regression model. 
+    # This model will learn to adjust the logits to better reflect the true probabilities.
+    # Apply the Fitted Model: Use this fitted model to transform the logits of new images before passing them 
+    # through the sigmoid function.
 
     # from sklearn.linear_model import LogisticRegression
 
@@ -236,9 +248,7 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
-    )
+    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
 
     return process_image(args.image_path)
 
