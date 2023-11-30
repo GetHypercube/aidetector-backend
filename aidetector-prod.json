@@ -1,57 +1,91 @@
 {
-  "containerDefinitions": [
-      {
-          "name": "aidetector-prod",
-          "image": "110727845776.dkr.ecr.us-east-1.amazonaws.com/aidetector:latest",
-          "cpu": 4096,
-          "memory": 15360,
-          "portMappings": [
-              {
-                  "name": "aidetector-prod-80-tcp",
-                  "containerPort": 80,
-                  "hostPort": 80,
-                  "protocol": "tcp",
-                  "appProtocol": "http"
-              }
-          ],
-          "essential": true,
-          "environment": [],
-          "environmentFiles": [],
-          "mountPoints": [],
-          "volumesFrom": [],
-          "ulimits": [],
-          "logConfiguration": {
-              "logDriver": "awslogs",
-              "options": {
-                  "awslogs-create-group": "true",
-                  "awslogs-group": "/ecs/aidetector-prod",
-                  "awslogs-region": "us-east-1",
-                  "awslogs-stream-prefix": "ecs"
-              },
-              "secretOptions": []
-          },
-          "resourceRequirements": [
-            {
-                "value": "1",
-                "type": "GPU"
-            }
-        ]
-      }
-  ],
-  "family": "aidetector-prod",
-  "taskRoleArn": "arn:aws:iam::110727845776:role/backend-role-prod",
-  "executionRoleArn": "arn:aws:iam::110727845776:role/ecsTaskExecutionRole",
-  "networkMode": "awsvpc",
-  "volumes": [],
-  "placementConstraints": [],
-  "requiresCompatibilities": [
-      "EC2"
-  ],
-  "cpu": "4096",
-  "memory": "15360",
-  "runtimePlatform": {
-      "cpuArchitecture": "X86_64",
-      "operatingSystemFamily": "LINUX"
-  },
-  "tags": []
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:110727845776:task-definition/aidetector-prod:45",
+    "containerDefinitions": [
+        {
+            "name": "aidetector-prod",
+            "image": "110727845776.dkr.ecr.us-east-1.amazonaws.com/aidetector",
+            "cpu": 4096,
+            "memory": 15360,
+            "portMappings": [
+                {
+                    "name": "aidetector-prod-80-tcp",
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/aidetector-prod",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "resourceRequirements": [
+                {
+                    "value": "1",
+                    "type": "GPU"
+                }
+            ]
+        }
+    ],
+    "family": "aidetector-prod",
+    "taskRoleArn": "arn:aws:iam::110727845776:role/backend-role-prod",
+    "executionRoleArn": "arn:aws:iam::110727845776:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 45,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "4096",
+    "memory": "15360",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2023-11-30T22:48:26.732Z",
+    "registeredBy": "arn:aws:iam::110727845776:user/github",
+    "tags": []
 }
