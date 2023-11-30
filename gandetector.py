@@ -73,8 +73,6 @@ def process_image(image_path, preloaded_models=None):
     img = Image.open(processed_image_path).convert("RGB")
     img.load()
 
-    logger.debug("Before looping all models")
-
     for model_name, model_config in models_config.items():
 
         logger.info("Processing the model: %s", model_name)

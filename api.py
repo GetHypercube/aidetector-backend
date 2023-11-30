@@ -157,7 +157,10 @@ def detect():
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
     }
-    craft = craft_explanation(file_path, preliminary_results)
+
+    logger.info("Starting explainability generator on %s", file_path)
+
+    craft_results = craft_explanation(file_path, preliminary_results)
 
     # End timing
     end_time = time()
@@ -167,7 +170,7 @@ def detect():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
-        "explainabilityResults": craft['choices'][0]['message']['content'],
+        "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
 

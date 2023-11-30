@@ -90,7 +90,7 @@ def main():
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
     }
-    craft = craft_explanation(args.image_path, preliminary_results)
+    craft_results = craft_explanation(args.image_path, preliminary_results)
 
     # End timing
     end_time = time()
@@ -100,7 +100,7 @@ def main():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
-        "explainabilityResults": craft['choices'][0]['message']['content'],
+        "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
 

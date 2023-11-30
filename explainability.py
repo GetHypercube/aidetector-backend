@@ -43,6 +43,8 @@ def craft_explanation(image_path, analysis_results):
     Sends an image and its analysis results to GPT Vision for crafting an explanation.
     """
 
+    logger.debug("Inside the craft_explanation")
+
     # Getting the base64 string
     base64_image = encode_image(image_path)
 
@@ -86,11 +88,16 @@ def craft_explanation(image_path, analysis_results):
 
     try:
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        logger.debug("OPENAI response is %s", response)
         if response.status_code == 200:
             # Convert the response to JSON format
             data = response.json()
-            return data
+            logger.debug("Response choice: %s", data['choices'][0])
+            result = data['choices'][0]['message']['content']
+            return result
         else:
-            return(f"Error: {response.status_code}")
+            logger.warning("Received an invalid response from OpenAI")
+            return("Our explainability model is having some issues today")
     except Exception as e:
-        return str(e)
+        logger.warning("Received an invalid response from OpenAI %s", e)
+        return("Our explainability model is having some issues today")
