@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 To run the detector on an image:
 
-`python main.py --image_path image.jpg`
+`python main.py --image_path image.jpg` 
 
 For just running the diffusion detector:
 
