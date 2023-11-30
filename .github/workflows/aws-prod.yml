@@ -48,5 +48,5 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: aidetector-ec2
           cluster: aidetector-prod
-          wait-for-service-stability: true
+          # wait-for-service-stability: true
   
