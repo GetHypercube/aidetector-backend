@@ -15,6 +15,7 @@ Functions:
 """
 
 import os
+import base64
 import logging
 import numpy as np
 import psutil
@@ -62,6 +63,19 @@ def calculate_sigmoid_probabilities(logits_dict):
         sigmoid_prob = 1 / (1 + np.exp(-logit))  # Sigmoid function
         sigmoid_probs[model] = sigmoid_prob
     return sigmoid_probs
+
+def encode_image(image_path):
+    """
+    Encodes an image to a base64 string.
+
+    Parameters:
+    image_path (str): Path to the image file.
+
+    Returns:
+    str: Base64 encoded string of the image.
+    """
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
 
 def validate_image_file(image_path):
     """

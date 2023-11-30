@@ -28,6 +28,7 @@ from gandetector import (
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
+from explainability import craft_explanation
 
 logger = setup_logger(__name__)  # Default level can be INFO
 
@@ -72,17 +73,24 @@ def main():
     # Start timing
     start_time = time()
 
-    # Run DM Detector
+    # Run diffusion detector
     dm_results = dm_process_image(
         args.image_path
     )
 
     logger.info("Starting GAN detection on %s", args.image_path)
 
-    # Run GAN Detector
+    # Run GAN detector
     gan_results = gan_process_image(
         args.image_path
     )
+
+    # Run explainability generator
+    preliminary_results = {
+        "dMDetectorResults": dm_results,
+        "gANDetectorResults": gan_results,
+    }
+    craft = craft_explanation(args.image_path, preliminary_results)
 
     # End timing
     end_time = time()
@@ -92,11 +100,11 @@ def main():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "explainabilityResults": craft['choices'][0]['message']['content'],
         "totalExecutionTime": total_execution_time,
     }
-    
-    print(json.dumps(results, indent=4))
 
+    print(json.dumps(results, indent=4))
 
 if __name__ == "__main__":
     main()

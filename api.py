@@ -22,6 +22,7 @@ from gandetector import (
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
+from explainability import craft_explanation
 
 # Setup logger for Flask application
 logger = setup_logger(__name__)
@@ -151,6 +152,13 @@ def detect():
         file_path, preloaded_models=gan_loaded_models
     )
 
+    # Run explainability generator
+    preliminary_results = {
+        "dMDetectorResults": dm_results,
+        "gANDetectorResults": gan_results,
+    }
+    craft = craft_explanation(file_path, preliminary_results)
+
     # End timing
     end_time = time()
     total_execution_time = end_time - start_time
@@ -159,6 +167,7 @@ def detect():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "explainabilityResults": craft['choices'][0]['message']['content'],
         "totalExecutionTime": total_execution_time,
     }
 
