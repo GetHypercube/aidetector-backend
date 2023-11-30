@@ -18,7 +18,7 @@ from utils import (
     calculate_sigmoid_probabilities,
 )
 
-logger = setup_logger(__name__)  # Default level can be INFO
+logger = setup_logger(__name__)
 
 models_config = {
     "gandetection_resnet50nodown_progan": {
