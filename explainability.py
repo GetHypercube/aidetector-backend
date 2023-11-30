@@ -1,10 +1,41 @@
 import os
 import requests
+import boto3
+from botocore.exceptions import ClientError
 from utils import encode_image
 
-# Load the API key from an environment variable
-api_key = os.getenv("OPENAI_API_KEY")
+# Hardcode the API key
 # api_key = "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"
+# Load the API key from an environment variable
+# api_key = os.getenv("OPENAI_API_KEY")
+
+def get_secret():
+
+    secret_name = "aidetector-prod/OPENAI_API_KEY"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    # Decrypts secret using the associated KMS key.
+    secret = get_secret_value_response['SecretString']
+    
+    return secret
+
+api_key = get_secret()
 
 def craft_explanation(image_path, analysis_results):
     """

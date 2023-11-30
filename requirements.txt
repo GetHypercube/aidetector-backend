@@ -6,3 +6,4 @@ flask
 torchvision
 waitress
 flask-cors
+boto3
