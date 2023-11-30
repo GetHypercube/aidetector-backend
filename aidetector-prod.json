@@ -38,7 +38,7 @@
     "family": "aidetector-prod",
     "taskRoleArn": "arn:aws:iam::110727845776:role/backend-role-prod",
     "executionRoleArn": "arn:aws:iam::110727845776:role/ecsTaskExecutionRole",
-    "networkMode": "awsvpc",
+    "networkMode": "bridge",
     "volumes": [],
     "placementConstraints": [],
     "requiresCompatibilities": [

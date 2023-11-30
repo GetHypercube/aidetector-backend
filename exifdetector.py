@@ -7,7 +7,6 @@ from PIL.ExifTags import TAGS
 from utils import (
     setup_logger,
     compress_and_resize_image,
-    print_memory_usage,
 )
 
 logger = setup_logger(__name__)
