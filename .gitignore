@@ -2,3 +2,6 @@
 weights
 __pycache__
 .vscode
+*.jpg
+*.jpeg
+*.png
