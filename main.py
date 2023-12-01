@@ -14,9 +14,12 @@ Functions:
     and GAN detectors.
 """
 
+import os
 import argparse
 import json
 import logging
+import csv
+import glob
 from time import time
 from utils import setup_logger, validate_image_file
 from dmdetector import (
@@ -37,6 +40,52 @@ from explainability import craft_explanation
 logger = setup_logger(__name__)
 
 
+def process_folder(folder_path, models):
+    results = []
+    search_pattern = os.path.join(folder_path, '**', '*.png')  # Safely construct the path
+    for filepath in glob.iglob(search_pattern, recursive=True):
+        image_results = process_image(filepath, models)
+        results.append((filepath, image_results))
+    return results
+
+
+def process_image(image_path, models):
+    # Validate the image file
+    try:
+        validate_image_file(image_path)
+    except ValueError as e:
+        return logger.error("Image %s is not valid: %s", image_path, e)
+    logger.info("Image %s is valid", image_path)
+
+    image_results = {}
+    if "dMDetectorResults" in models:
+        logger.info("Starting DM detection on %s", image_path)
+        image_results["dMDetectorResults"] = dm_process_image(image_path)
+    if "gANDetectorResults" in models:
+        logger.info("Starting GAN detection on %s", image_path)
+        image_results["gANDetectorResults"] = gan_process_image(image_path)
+    if "exifDetectorResults" in models:
+        logger.info("Starting EXIF detection on %s", image_path)
+        image_results["exifDetectorResults"] = exif_process_image(image_path)
+    preliminary_results = {
+        "dMDetectorResults": image_results["dMDetectorResults"],
+        "gANDetectorResults": image_results["gANDetectorResults"],
+        "exifDetectorResults": image_results["exifDetectorResults"],
+    }
+    if "explainabilityResults" in models:
+        logger.info("Starting explainability detection on %s", image_path)
+        image_results["explainabilityResults"] = craft_explanation(image_path, preliminary_results)
+    return image_results
+
+
+def write_to_csv(results, output_file):
+    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Image Path', 'Results'])
+        for path, result in results:
+            writer.writerow([path, json.dumps(result)])
+
+
 def main():
     """
     Command-line interface for the Diffusor and GAN detector
@@ -45,13 +94,33 @@ def main():
         description="GAN detector inference on a single image"
     )
     parser.add_argument(
-        "--image_path", type=str, required=True, help="Path to the image file"
+        "--image_path",
+        type=str,
+        help="Path to the image file"
+    )
+    parser.add_argument(
+        "--folder_path",
+        type=str,
+        help="Path to the folder containing images"
     )
     parser.add_argument(
         "--log_level",
         type=str,
         default="INFO",
         help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+    )
+    parser.add_argument(
+        "--models",
+        nargs='+',
+        help="Models to use for detection",
+        default=["dMDetectorResults", "gANDetectorResults", "exifDetectorResults", "explainabilityResults"],
+        choices=["dMDetectorResults", "gANDetectorResults", "exifDetectorResults", "explainabilityResults"]
+    )
+    parser.add_argument(
+        "--output_csv",
+        type=str,
+        default="results.csv",
+        help="Path to the output CSV file"
     )
 
     args = parser.parse_args()
@@ -67,56 +136,26 @@ def main():
         __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
     )
 
-    # Validate the image file
-    try:
-        validate_image_file(args.image_path)
-    except ValueError as e:
-        return logger.error("Image %s is not valid: %s", args.image_path, e)
-
-    logger.info("Image %s is valid", args.image_path)
-
     # Start timing
     start_time = time()
 
-    # Run diffusion detector
-    dm_results = dm_process_image(
-        args.image_path
-    )
+    if args.folder_path:
+        folder_results = process_folder(args.folder_path, args.models)
+        write_to_csv(folder_results, args.output_csv)
+    else:
+        image_results = process_image(args.image_path, args.models)
 
-    logger.info("Starting GAN detection on %s", args.image_path)
+        # End timing
+        end_time = time()
+        total_execution_time = end_time - start_time
 
-    # Run GAN detector
-    gan_results = gan_process_image(
-        args.image_path
-    )
+        # Combine results
+        results = {
+            "results": image_results,
+            "totalExecutionTime": total_execution_time,
+        }
 
-    # Run EXIF detector
-    exif_results = exif_process_image(
-        args.image_path
-    )
-
-    # Run explainability generator
-    preliminary_results = {
-        "dMDetectorResults": dm_results,
-        "gANDetectorResults": gan_results,
-        "exifDetectorResults": exif_results,
-    }
-    craft_results = craft_explanation(args.image_path, preliminary_results)
-
-    # End timing
-    end_time = time()
-    total_execution_time = end_time - start_time
-
-    # Combine results
-    results = {
-        "dMDetectorResults": dm_results,
-        "gANDetectorResults": gan_results,
-        "exifDetectorResults": exif_results,
-        "explainabilityResults": craft_results,
-        "totalExecutionTime": total_execution_time,
-    }
-
-    print(json.dumps(results, indent=4))
+        print(json.dumps(results, indent=4))
 
 
 if __name__ == "__main__":

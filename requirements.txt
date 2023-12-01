@@ -8,3 +8,8 @@ waitress
 flask-cors
 boto3
 exifread
+
+.csv
+.png
+.jpg
+.jpeg
