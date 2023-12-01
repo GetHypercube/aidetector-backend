@@ -1,25 +1,28 @@
 """
 Utility Functions for Image Processing and System Monitoring
 
-This module provides a set of utility functions that are used across the image detection 
-application. These include functions for image compression and resizing, file format 
-validation, and system resource monitoring.
+This module provides a set of utility functions that are used across the image
+detection application. These include functions for image compression and
+resizing, file format validation, and system resource monitoring.
 
 Functions:
-    compress_and_resize_image(image_path, max_size): 
+    compress_and_resize_image(image_path, max_size):
         Compresses and resizes an image to a specified maximum size.
-    validate_image_file(image_path): 
-        Validates the file format of an image and checks if it's a valid image file.
-    print_memory_usage(): 
+    validate_image_file(image_path):
+        Validates the file format of an image and checks if it's a valid image
+        file.
+    print_memory_usage():
         Prints the current memory usage of the process to the console.
 """
 
 import os
 import base64
 import logging
+import csv
 import numpy as np
 import psutil
 from PIL import Image, UnidentifiedImageError
+
 
 def setup_logger(name, level=logging.DEBUG):
     """
@@ -45,8 +48,44 @@ def setup_logger(name, level=logging.DEBUG):
 
     return logger
 
+
 # Configure logger for utils.py
 logger = setup_logger(__name__)
+
+
+def flatten_json(y):
+    out = {}
+
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a[0].upper() + a[1:])
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + '_')
+                i += 1
+        else:
+            out[name[:-1]] = x
+
+    flatten(y)
+    return out
+
+
+def write_to_csv(results, output_file):
+    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = None
+
+        flattened_result = flatten_json(results)
+
+        # Initialize CSV writer and write headers
+        if writer is None:
+            writer = csv.DictWriter(file, fieldnames=flattened_result.keys())
+            writer.writeheader()
+
+        # Write the row
+        writer.writerow(flattened_result)
+
 
 def calculate_sigmoid_probabilities(logits_dict):
     """
@@ -64,6 +103,7 @@ def calculate_sigmoid_probabilities(logits_dict):
         sigmoid_probs[model] = sigmoid_prob
     return sigmoid_probs
 
+
 def encode_image(image_path):
     """
     Encodes an image to a base64 string.
@@ -76,6 +116,7 @@ def encode_image(image_path):
     """
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
+
 
 def validate_image_file(image_path):
     """

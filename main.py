@@ -18,10 +18,9 @@ import os
 import argparse
 import json
 import logging
-import csv
 import glob
 from time import time
-from utils import setup_logger, validate_image_file
+from utils import setup_logger, validate_image_file, write_to_csv
 from dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
@@ -42,7 +41,7 @@ logger = setup_logger(__name__)
 
 def process_folder(folder_path, models):
     results = []
-    search_pattern = os.path.join(folder_path, '**', '*.png')  # Safely construct the path
+    search_pattern = os.path.join(folder_path, '**', '*.jpg')
     for filepath in glob.iglob(search_pattern, recursive=True):
         image_results = process_image(filepath, models)
         results.append((filepath, image_results))
@@ -58,6 +57,7 @@ def process_image(image_path, models):
     logger.info("Image %s is valid", image_path)
 
     image_results = {}
+    image_results["path"] = image_path
     if "dMDetectorResults" in models:
         logger.info("Starting DM detection on %s", image_path)
         image_results["dMDetectorResults"] = dm_process_image(image_path)
@@ -76,14 +76,6 @@ def process_image(image_path, models):
         logger.info("Starting explainability detection on %s", image_path)
         image_results["explainabilityResults"] = craft_explanation(image_path, preliminary_results)
     return image_results
-
-
-def write_to_csv(results, output_file):
-    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Image Path', 'Results'])
-        for path, result in results:
-            writer.writerow([path, json.dumps(result)])
 
 
 def main():
@@ -141,6 +133,7 @@ def main():
 
     if args.folder_path:
         folder_results = process_folder(args.folder_path, args.models)
+        print(folder_results)
         write_to_csv(folder_results, args.output_csv)
     else:
         image_results = process_image(args.image_path, args.models)
@@ -151,7 +144,7 @@ def main():
 
         # Combine results
         results = {
-            "results": image_results,
+            **image_results,
             "totalExecutionTime": total_execution_time,
         }
 
