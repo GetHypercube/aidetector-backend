@@ -185,6 +185,7 @@ def detect():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "exifDetectorResults": exif_results,
         "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
