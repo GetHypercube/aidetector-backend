@@ -1,6 +1,8 @@
 """
-Diffusor detector: Inference on a single image using pre-trained models for GAN detection.
-It prints out the logits returned by each model and the final label based on these logits.
+Diffusor detector: Inference on a single image using pre-trained models for
+GAN detection.
+It prints out the logits returned by each model and the final label based on
+these logits.
 """
 import traceback
 import argparse
@@ -144,7 +146,7 @@ def process_image(image_path, preloaded_models=None):
             logger.error(
                 "Traceback: %s", traceback.format_exc()
             )  # Log the full traceback
-            continue  # Optionally, continue with the next iteration of the loop
+            continue  # Optionally, continue with the next iteration
 
         logger.info("Calculated the logit of model: %s", model_name)
 
@@ -156,15 +158,13 @@ def process_image(image_path, preloaded_models=None):
 
     execution_time = time.time() - start_time
 
-    # label = "True" if any(value > 0 for value in logits.values()) else "False"
-
     # Calculate if the image is fake or not
 
     threshold = 0.5
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
-    logger.debug("Calculated the sigmoid probabilities of model: %s", model_name)
+    logger.debug("Calculated the sigmoid of model: %s", model_name)
 
     for prob in sigmoid_probs.values():
         if prob >= threshold:
@@ -187,17 +187,19 @@ def process_image(image_path, preloaded_models=None):
     # @TODO: Calibration with platt scaling
 
     # Implementing Calibration:
-    # Collect a Calibration Dataset: You need a small set of labeled data (real and synthetic images) that your 
-    # model has not seen during training.
-    # Fit Platt Scaling: Use the logits from your model(s) on this calibration dataset to fit a logistic regression model. 
-    # This model will learn to adjust the logits to better reflect the true probabilities.
-    # Apply the Fitted Model: Use this fitted model to transform the logits of new images before passing them 
-    # through the sigmoid function.
+    # Collect a Calibration Dataset: You need a small set of labeled data
+    # (real and synthetic images) that your model has not seen during training.
+    # Fit Platt Scaling: Use the logits from your model(s) on this calibration
+    # dataset to fit a logistic regression model.
+    # This model will learn to adjust the logits to better reflect the true
+    # probabilities.
+    # Apply the Fitted Model: Use this fitted model to transform the logits of
+    # new images before passing them through the sigmoid function.
 
     # from sklearn.linear_model import LogisticRegression
 
     # Example calibration dataset
-    # X_calib = [[logit1], [logit2], ...]  # Logits from your model on calibration data
+    # X_calib = [[logit1], ...]  # Logits from your model on calibration data
     # y_calib = [label1, label2, ...]  # True labels (0 or 1)
 
     # Fit Platt scaling model

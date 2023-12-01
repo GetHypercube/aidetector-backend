@@ -1,6 +1,7 @@
 """
-GAN Detector: Inference on a single image using pre-trained models for GAN detection.
-It prints out the logits returned by each model and the final label based on these logits.
+GAN Detector: Inference on a single image using pre-trained models for GAN
+detection. It prints out the logits returned by each model and the final
+label based on these logits.
 """
 
 import argparse
@@ -102,13 +103,11 @@ def process_image(image_path, preloaded_models=None):
 
     # Calculate if the image is fake or not
 
-    # label = "True" if any(value > 0 for value in logits.values()) else "False"
-
     threshold = 0.5
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
-    logger.debug("Calculated the sigmoid probabilities of model: %s", model_name)
+    logger.debug("Calculated the sigmoid probabilities: %s", model_name)
 
     for prob in sigmoid_probs.values():
         if prob >= threshold:

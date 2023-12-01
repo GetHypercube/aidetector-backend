@@ -1,8 +1,9 @@
 """
 Flask API for Image Detection
 
-This module provides a Flask web server with endpoints for detecting images using 
-pre-trained models and for receiving user feedback on the detection results.
+This module provides a Flask web server with endpoints for detecting images
+using pre-trained models and for receiving user feedback on the detection
+results.
 """
 import os
 import uuid
@@ -22,6 +23,9 @@ from gandetector import (
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
+from exifdetector import (
+    process_image as exif_process_image,
+)
 from explainability import craft_explanation
 
 # Setup logger for Flask application
@@ -33,6 +37,7 @@ CORS(app)
 # Global variables to store loaded models
 dm_loaded_models = {}
 gan_loaded_models = {}
+
 
 def preload_models():
     """
@@ -58,6 +63,7 @@ def preload_models():
 
     logger.info("Model preloading complete!")
 
+
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
     """
@@ -76,12 +82,14 @@ def debug_preload_models():
         200,
     )
 
+
 @app.route("/", methods=["GET"])
 def hello_world():
     """
     Responds with a 'Hello world' message.
     """
     return jsonify({"message": "Hello world!"}), 200
+
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
@@ -99,6 +107,7 @@ def feedback():
         return jsonify({"error": "Missing file_name or feedback"}), 400
 
     return jsonify({"message": "Feedback received successfully"})
+
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -152,10 +161,16 @@ def detect():
         file_path, preloaded_models=gan_loaded_models
     )
 
+    # Run EXIF detector
+    exif_results = exif_process_image(
+        file_path
+    )
+
     # Run explainability generator
     preliminary_results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "exifDetectorResults": exif_results,
     }
 
     logger.info("Starting explainability generator on %s", file_path)
@@ -175,6 +190,7 @@ def detect():
     }
 
     return jsonify(results)
+
 
 if __name__ == "__main__":
     preload_models()

@@ -1,16 +1,17 @@
 """
 Main Module for Command-Line Image Detection
 
-This module provides a command-line interface for running image detection 
-using Diffusion Model (DM) Detector and Generative Adversarial Network (GAN) Detector. 
-It allows users to specify an image file for detection and provides an option 
-for enabling debug mode for more verbose output.
+This module provides a command-line interface for running image detection
+using Diffusion Model (DM) Detector and Generative Adversarial Network (GAN)
+Detector. It allows users to specify an image file for detection and provides
+an option for enabling debug mode for more verbose output.
 
-The module processes the provided image through both DM and GAN detectors and prints 
-the results to the console.
+The module processes the provided image through both DM and GAN detectors and
+prints the results to the console.
 
 Functions:
-    main(): Parses command-line arguments and runs image detection using DM and GAN detectors.
+    main(): Parses command-line arguments and runs image detection using DM
+    and GAN detectors.
 """
 
 import argparse
@@ -28,9 +29,13 @@ from gandetector import (
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
+from exifdetector import (
+    process_image as exif_process_image,
+)
 from explainability import craft_explanation
 
-logger = setup_logger(__name__)  # Default level can be INFO
+logger = setup_logger(__name__)
+
 
 def main():
     """
@@ -66,7 +71,7 @@ def main():
     try:
         validate_image_file(args.image_path)
     except ValueError as e:
-        return logger.error("Image %s is not valid", args.image_path)
+        return logger.error("Image %s is not valid: %s", args.image_path, e)
 
     logger.info("Image %s is valid", args.image_path)
 
@@ -85,10 +90,16 @@ def main():
         args.image_path
     )
 
+    # Run EXIF detector
+    exif_results = exif_process_image(
+        args.image_path
+    )
+
     # Run explainability generator
     preliminary_results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "exifDetectorResults": exif_results,
     }
     craft_results = craft_explanation(args.image_path, preliminary_results)
 
@@ -100,11 +111,13 @@ def main():
     results = {
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
+        "exifDetectorResults": exif_results,
         "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
 
     print(json.dumps(results, indent=4))
+
 
 if __name__ == "__main__":
     main()
