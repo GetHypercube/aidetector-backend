@@ -13,7 +13,6 @@ Functions:
     main(): Parses command-line arguments and runs image detection using DM
     and GAN detectors.
 """
-
 import os
 import argparse
 import json
