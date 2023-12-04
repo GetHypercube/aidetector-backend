@@ -8,3 +8,4 @@ __pycache__
 *.csv
 example_images
 tmp
+.DS_Store
