@@ -62,7 +62,7 @@ If you want to use the API, first run the server:
 
 In Windows, run the CURL command:
 
-`curl -X POST -F "file=@real_biggan.png" http://localhost:8080/detect`
+`curl -X POST -F "file=@real_biggan.png" http://localhost:80/detect`
 
 ## Docker usage
 
