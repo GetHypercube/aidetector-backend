@@ -151,7 +151,7 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
+    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.INFO))
     return process_image(args.image_path)
 
 

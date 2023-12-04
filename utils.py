@@ -24,7 +24,7 @@ import psutil
 from PIL import Image, UnidentifiedImageError
 
 
-def setup_logger(name, level=logging.DEBUG):
+def setup_logger(name, level=logging.INFO):
     """
     Sets up and returns a logger with the specified name.
 
@@ -70,14 +70,18 @@ def flatten_json(y):
     def flatten(x, name=""):
         if isinstance(x, dict):
             for a in x:
-                flatten(x[a], name + a[0].upper() + a[1:])
+                # Add an underscore only if name is not empty
+                next_key = name + a + ('_' if name else '')
+                flatten(x[a], next_key)
         elif isinstance(x, list):
             i = 0
             for a in x:
                 flatten(a, name + str(i) + "_")
                 i += 1
         else:
-            out[name[:-1]] = x
+            # Remove the trailing underscore (if any) before assigning the value
+            clean_name = name[:-1] if name.endswith('_') else name
+            out[clean_name] = x
 
     flatten(y)
     return out
