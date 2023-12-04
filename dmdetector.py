@@ -232,7 +232,10 @@ def main():
         description="Diffusion detector inference on a single image"
     )
     parser.add_argument(
-        "--image_path", type=str, required=True, help="Path to the image file"
+        "--image_path", 
+        type=str, 
+        required=True, 
+        help="Path to the image file"
     )
     parser.add_argument(
         "--log_level",

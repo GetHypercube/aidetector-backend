@@ -85,12 +85,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="GAN detector inference on a single image"
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         "--image_path",
         type=str,
         help="Path to the image file"
     )
-    parser.add_argument(
+    group.add_argument(
         "--folder_path",
         type=str,
         help="Path to the folder containing images"
