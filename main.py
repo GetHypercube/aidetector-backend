@@ -20,7 +20,12 @@ import json
 import logging
 import glob
 from time import time
-from utils import setup_logger, validate_image_file, write_to_csv
+from utils import (
+    setup_logger,
+    validate_image_file,
+    write_to_csv,
+    compress_and_resize_image,
+)
 from dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
@@ -80,26 +85,32 @@ def process_image(image_path, models):
     # Validate the image file
     try:
         validate_image_file(image_path)
+        processed_image_path = compress_and_resize_image(
+            image_path, max_size=(1024, 1024), output_path="tmp"
+        )
+        logger.info("Image %s validated, resized and compressed", image_path)
+
     except ValueError as e:
         return logger.error("Image %s is not valid: %s", image_path, e)
-    logger.info("Image %s is valid", image_path)
 
     image_results = {}
-    image_results["path"] = image_path
+    image_results["path"] = processed_image_path
     if "dMDetectorResults" in models:
-        logger.info("Starting DM detection on %s", image_path)
-        image_results["dMDetectorResults"] = dm_process_image(image_path)
+        logger.info("Starting DM detection on %s", processed_image_path)
+        image_results["dMDetectorResults"] = dm_process_image(processed_image_path)
     if "gANDetectorResults" in models:
-        logger.info("Starting GAN detection on %s", image_path)
-        image_results["gANDetectorResults"] = gan_process_image(image_path)
+        logger.info("Starting GAN detection on %s", processed_image_path)
+        image_results["gANDetectorResults"] = gan_process_image(processed_image_path)
     if "exifDetectorResults" in models:
-        logger.info("Starting EXIF detection on %s", image_path)
-        image_results["exifDetectorResults"] = exif_process_image(image_path)
-    preliminary_results = {
-        "dMDetectorResults": image_results["dMDetectorResults"],
-        "gANDetectorResults": image_results["gANDetectorResults"],
-        "exifDetectorResults": image_results["exifDetectorResults"],
-    }
+        logger.info("Starting EXIF detection on %s", processed_image_path)
+        image_results["exifDetectorResults"] = exif_process_image(processed_image_path)
+
+    # Only add to preliminary_results if the key exists
+    preliminary_results = {}
+    for model_key in ["dMDetectorResults", "gANDetectorResults", " "]:
+        if model_key in image_results:
+            preliminary_results[model_key] = image_results[model_key]
+
     if "explainabilityResults" in models:
         logger.info("Starting explainability detection on %s", image_path)
         image_results["explainabilityResults"] = craft_explanation(
@@ -167,7 +178,13 @@ def main():
     if args.folder_path:
         folder_results = process_folder(args.folder_path, args.models)
         write_to_csv(folder_results, args.output_csv)
-        print(json.dumps(folder_results, indent=4))
+        # End timing
+        end_time = time()
+        total_execution_time = end_time - start_time
+        results = {
+            "folderResults": folder_results,
+            "totalExecutionTime": total_execution_time,
+        }
     else:
         image_results = process_image(args.image_path, args.models)
 
@@ -181,7 +198,7 @@ def main():
             "totalExecutionTime": total_execution_time,
         }
 
-        print(json.dumps(results, indent=4))
+    print(json.dumps(results, indent=4))
 
 
 if __name__ == "__main__":

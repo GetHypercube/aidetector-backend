@@ -12,7 +12,12 @@ from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
-from utils import setup_logger, print_memory_usage, validate_image_file
+from utils import (
+    setup_logger,
+    print_memory_usage,
+    validate_image_file,
+    compress_and_resize_image,
+)
 from dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
@@ -129,42 +134,37 @@ def detect():
     # Generate a random mnemonic filename with the original file extension
     _, ext = os.path.splitext(file.filename)
     random_name = f"{uuid.uuid4()}{ext}"
-    file_path = f"/tmp/{random_name}"
+    image_path = f"/tmp/{random_name}"
 
     # Save the file to a temporary location
-    file.save(file_path)
+    file.save(image_path)
 
-    logger.info("Image saved in temporal the location: %s", file_path)
+    logger.info("Image saved in temporal the location: %s", image_path)
 
     # Validate the image file
     try:
-        validate_image_file(file_path)
+        validate_image_file(image_path)
+        processed_image_path = compress_and_resize_image(image_path)
+        logger.info("Image %s validated, resized and compressed", image_path)
     except ValueError as e:
+        logger.error("Image %s is not valid: %s", image_path, e)
         return jsonify({"error": str(e)}), 400
-
-    logger.info("Image %s is valid", file_path)
 
     # Start timing
     start_time = time()
 
-    logger.info("Starting DM detection on %s", file_path)
+    logger.info("Starting DM detection on %s", processed_image_path)
 
     # Run DM Detector
-    dm_results = dm_process_image(
-        file_path, preloaded_models=dm_loaded_models
-    )
+    dm_results = dm_process_image(processed_image_path, preloaded_models=dm_loaded_models)
 
-    logger.info("Starting GAN detection on %s", file_path)
+    logger.info("Starting GAN detection on %s", processed_image_path)
 
     # Run GAN Detector
-    gan_results = gan_process_image(
-        file_path, preloaded_models=gan_loaded_models
-    )
+    gan_results = gan_process_image(processed_image_path, preloaded_models=gan_loaded_models)
 
     # Run EXIF detector
-    exif_results = exif_process_image(
-        file_path
-    )
+    exif_results = exif_process_image(image_path)
 
     # Run explainability generator
     preliminary_results = {
@@ -173,9 +173,9 @@ def detect():
         "exifDetectorResults": exif_results,
     }
 
-    logger.info("Starting explainability generator on %s", file_path)
+    logger.info("Starting explainability generator on %s", processed_image_path)
 
-    craft_results = craft_explanation(file_path, preliminary_results)
+    craft_results = craft_explanation(processed_image_path, preliminary_results)
 
     # End timing
     end_time = time()

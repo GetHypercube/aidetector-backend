@@ -14,7 +14,6 @@ from PIL import Image
 from networks.resnet50nodown import resnet50nodown
 from utils import (
     setup_logger,
-    compress_and_resize_image,
     print_memory_usage,
     calculate_sigmoid_probabilities,
 )
@@ -72,11 +71,9 @@ def process_image(image_path, preloaded_models=None):
         logger.info("Running on CPU")
     logits = {}
 
-    processed_image_path = compress_and_resize_image(image_path)
-
     logger.info("Image %s resized and compressed", image_path)
 
-    img = Image.open(processed_image_path).convert("RGB")
+    img = Image.open(image_path).convert("RGB")
     img.load()
 
     for model_name, model_config in models_config.items():

@@ -1,3 +1,7 @@
+"""
+Exif Detector: Inference on a single image using meta information
+"""
+
 import argparse
 import time
 import json
@@ -36,7 +40,7 @@ def process_image(image_path):
     try:
         validate_image_file(image_path)
     except ValueError as e:
-        return ({"error": str(e)})
+        return {"error": str(e)}
 
     exif_dict = {}
 
@@ -56,7 +60,7 @@ def process_image(image_path):
     }
 
     for label, value in basic_metadata.items():
-        logger.debug(f"{label:25}: {value}")
+        logger.debug("%-25s: %s", label, value)
         exif_dict[label] = value
 
     logger.debug("Extracting additional metadata...")
@@ -71,24 +75,24 @@ def process_image(image_path):
         if isinstance(data, bytes):
             data = data.decode()
         if key not in exif_dict:
-            logger.debug(f"{key:25}: {data}")
+            logger.debug("%-25s: %s", key, data)
             exif_dict[key] = data
 
     if isinstance(image, PngImageFile):
         logger.debug("Extracting ICC profile...")
         # Extract ICC Profile
-        icc_profile = image.info.get('icc_profile')
+        icc_profile = image.info.get("icc_profile")
         if icc_profile:
-            exif_dict['ICC Profile'] = 'Available'
+            exif_dict["ICC Profile"] = "Available"
         else:
-            exif_dict['ICC Profile'] = 'Not available'
+            exif_dict["ICC Profile"] = "Not available"
 
         # Extract text chunks
         for key in image.info:
-            if key in ['text', 'itxt', 'ztxt']:
+            if key in ["text", "itxt", "ztxt"]:
                 if key not in exif_dict:
                     exif_dict[key] = image.info[key]
-                    logger.debug(f"{key:25}: {image.info[key]}")
+                    logger.debug("%-25s: %s", key, image.info[key])
 
     # Iterate over image.info and add to exif_dict
     for key, value in image.info.items():
@@ -99,18 +103,22 @@ def process_image(image_path):
 
     execution_time = time.time() - start_time
 
-    if 'Author' in exif_dict and 'Description' in exif_dict and "Job ID:" in exif_dict['Description']:
-        isSyntheticImage = True
-        inferedModel = "Midjourney"
+    if (
+        "Author" in exif_dict
+        and "Description" in exif_dict
+        and "Job ID:" in exif_dict["Description"]
+    ):
+        is_synthetic_image = True
+        infered_model = "Midjourney"
     else:
-        isSyntheticImage = False
-        inferedModel = None
+        is_synthetic_image = False
+        infered_model = None
 
     detection_output = {
         "model": "exif-model-detector",
         "inferenceResults": {
-            "isSyntheticImage": isSyntheticImage,
-            "inferedModel": inferedModel,
+            "isSyntheticImage": is_synthetic_image,
+            "inferedModel": infered_model,
             "executionTime": execution_time,
         },
     }

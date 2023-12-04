@@ -39,7 +39,9 @@ def setup_logger(name, level=logging.DEBUG):
 
     # Create handler and formatter
     handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     handler.setFormatter(formatter)
 
     # Avoid duplicate logging
@@ -47,6 +49,7 @@ def setup_logger(name, level=logging.DEBUG):
         module_logger.addHandler(handler)
 
     return module_logger
+
 
 # Configure logger for utils.py
 logger = setup_logger(__name__)
@@ -68,14 +71,14 @@ def flatten_json(y):
     """
     out = {}
 
-    def flatten(x, name=''):
+    def flatten(x, name=""):
         if isinstance(x, dict):
             for a in x:
                 flatten(x[a], name + a[0].upper() + a[1:])
         elif isinstance(x, list):
             i = 0
             for a in x:
-                flatten(a, name + str(i) + '_')
+                flatten(a, name + str(i) + "_")
                 i += 1
         else:
             out[name[:-1]] = x
@@ -100,7 +103,7 @@ def write_to_csv(results, output_file):
         The CSV file's columns are dynamically determined based on the keys of the
         flattened dictionaries.
     """
-    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+    with open(output_file, mode="w", newline="", encoding="utf-8") as file:
         writer = None
         for result in results:
             flattened_result = flatten_json(result)
@@ -142,7 +145,7 @@ def encode_image(image_path):
     str: Base64 encoded string of the image.
     """
     with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def validate_image_file(image_path):
@@ -173,24 +176,39 @@ def validate_image_file(image_path):
     return True
 
 
-def compress_and_resize_image(image_path, max_size=(1024, 1024)):
+def compress_and_resize_image(image_path, max_size=(1024, 1024), output_path=None):
     """
     Compresses and resizes an image to a manageable size.
 
     Args:
         image_path (str): Path to the image file.
         max_size (tuple): Maximum width and height of the resized image.
+        output_path (str, optional): Directory where the processed image will be saved.
+                                     If None, the image will be saved in the same 
+                                     directory as the original.
 
     Returns:
         str: Path to the processed image.
     """
-    # Open and process the image
+    # Convert relative path to absolute path
+    image_path = os.path.abspath(image_path)
+    output_path = (
+        os.path.abspath(output_path) if output_path else os.path.dirname(image_path)
+    )
+
+    # Ensure output directory exists
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
     with Image.open(image_path) as img:
         if img.size[0] > max_size[0] or img.size[1] > max_size[1]:
-            # Resize the image only if it's larger than max_size
             img.thumbnail(max_size, Image.LANCZOS)
-        # Save the processed image in a lossless format
-        processed_image_path = os.path.splitext(image_path)[0] + "_processed.png"
+
+        processed_file_name = (
+            os.path.splitext(os.path.basename(image_path))[0] + "_processed.png"
+        )
+        processed_image_path = os.path.join(output_path, processed_file_name)
+
         img.save(processed_image_path, format="PNG", optimize=True)
         return processed_image_path
 
