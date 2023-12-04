@@ -8,3 +8,5 @@ waitress
 flask-cors
 boto3
 exifread
+matplotlib
+seaborn

@@ -89,7 +89,6 @@ def process_folder(folder_path, models):
     Returns:
         list: A list of tuples, each containing the file path and the image processing results.
     """
-def process_folder(folder_path, models):
     results = []
     valid_extensions = (".png", ".jpg", ".jpeg", ".webp")
     for extension in valid_extensions:
