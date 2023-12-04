@@ -107,21 +107,21 @@ def process_image(image_path, preloaded_models=None):
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
-    logger.debug("Calculated the sigmoid probabilities: %s", model_name)
+    logger.debug("Calculated the sigmoid probabilities")
 
     for prob in sigmoid_probs.values():
         if prob >= threshold:
-            isGANImage = True  # Image is classified as fake
+            is_gan_image = True  # Image is classified as fake
             break
         else:
-            isGANImage = False
+            is_gan_image = False
 
     detection_output = {
         "model": "gan-model-detector",
         "inferenceResults": {
             "logits": logits,
             "probabilities": sigmoid_probs,
-            "isGANImage": isGANImage,
+            "is_gan_image": is_gan_image,
             "executionTime": execution_time,
         },
     }
@@ -137,10 +137,7 @@ def main():
         description="GAN detector inference on a single image"
     )
     parser.add_argument(
-        "--image_path", 
-        type=str, 
-        required=True, 
-        help="Path to the image file"
+        "--image_path", type=str, required=True, help="Path to the image file"
     )
     parser.add_argument(
         "--log_level",

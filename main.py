@@ -40,15 +40,43 @@ logger = setup_logger(__name__)
 
 
 def process_folder(folder_path, models):
+    """
+    Processes all JPEG images in a specified folder (and its subfolders) using given models.
+
+    This function searches for all image files within the given folder and its subdirectories.
+    Each image found is processed using the specified models.
+
+    Args:
+        folder_path (str): The path to the folder containing images.
+        models (list): A list of models to be used for processing each image.
+
+    Returns:
+        list: A list of tuples, each containing the file path and the image processing results.
+    """
     results = []
-    search_pattern = os.path.join(folder_path, '**', '*.jpg')
-    for filepath in glob.iglob(search_pattern, recursive=True):
-        image_results = process_image(filepath, models)
-        results.append((filepath, image_results))
+    valid_extensions = (".png", ".jpg", ".jpeg", ".webp")
+    for extension in valid_extensions:
+        search_pattern = os.path.join(folder_path, "**", "*" + extension)
+        for filepath in glob.iglob(search_pattern, recursive=True):
+            image_results = process_image(filepath, models)
+            results.append((filepath, image_results))
     return results
 
 
 def process_image(image_path, models):
+    """
+    Processes a single image using specified models.
+
+    Validates the given image file and applies a series of models to it, including
+    DM Detector, GAN Detector, EXIF Detector, and optionally explainability analysis.
+
+    Args:
+        image_path (str): The path to the image file.
+        models (list): A list of models to be used for image processing.
+
+    Returns:
+        dict: A dictionary containing the results from each applied model, keyed by model name.
+    """
     # Validate the image file
     try:
         validate_image_file(image_path)
@@ -74,7 +102,9 @@ def process_image(image_path, models):
     }
     if "explainabilityResults" in models:
         logger.info("Starting explainability detection on %s", image_path)
-        image_results["explainabilityResults"] = craft_explanation(image_path, preliminary_results)
+        image_results["explainabilityResults"] = craft_explanation(
+            image_path, preliminary_results
+        )
     return image_results
 
 
@@ -86,15 +116,9 @@ def main():
         description="GAN detector inference on a single image"
     )
     group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--image_path", type=str, help="Path to the image file")
     group.add_argument(
-        "--image_path",
-        type=str,
-        help="Path to the image file"
-    )
-    group.add_argument(
-        "--folder_path",
-        type=str,
-        help="Path to the folder containing images"
+        "--folder_path", type=str, help="Path to the folder containing images"
     )
     parser.add_argument(
         "--log_level",
@@ -104,16 +128,26 @@ def main():
     )
     parser.add_argument(
         "--models",
-        nargs='+',
+        nargs="+",
         help="Models to use for detection",
-        default=["dMDetectorResults", "gANDetectorResults", "exifDetectorResults", "explainabilityResults"],
-        choices=["dMDetectorResults", "gANDetectorResults", "exifDetectorResults", "explainabilityResults"]
+        default=[
+            "dMDetectorResults",
+            "gANDetectorResults",
+            "exifDetectorResults",
+            "explainabilityResults",
+        ],
+        choices=[
+            "dMDetectorResults",
+            "gANDetectorResults",
+            "exifDetectorResults",
+            "explainabilityResults",
+        ],
     )
     parser.add_argument(
         "--output_csv",
         type=str,
         default="results.csv",
-        help="Path to the output CSV file"
+        help="Path to the output CSV file",
     )
 
     args = parser.parse_args()
@@ -125,17 +159,15 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(
-        __name__, log_levels.get(args.log_level.upper(), logging.DEBUG)
-    )
+    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
 
     # Start timing
     start_time = time()
 
     if args.folder_path:
         folder_results = process_folder(args.folder_path, args.models)
-        print(folder_results)
         write_to_csv(folder_results, args.output_csv)
+        print(json.dumps(folder_results, indent=4))
     else:
         image_results = process_image(args.image_path, args.models)
 

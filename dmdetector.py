@@ -88,17 +88,6 @@ def get_transformations(norm_type):
         raise ValueError(f"Unknown norm type: {norm_type}")
 
 
-def classify_with_threshold(logits_progan, logits_latent, threshold=0.05):
-    prob_progan = 1 / (
-        1 + np.exp(-logits_progan)
-    )  # Convert logits to probabilities using sigmoid
-    prob_latent = 1 / (1 + np.exp(-logits_latent))
-
-    # Classify based on the threshold
-    classification = (prob_progan >= threshold) | (prob_latent >= threshold)
-    return classification  # Returns True for 'fake', False for 'not fake
-
-
 def process_image(image_path, preloaded_models=None):
     """
     Runs inference on a single image using specified models and weights.
@@ -164,14 +153,14 @@ def process_image(image_path, preloaded_models=None):
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
-    logger.debug("Calculated the sigmoid of model: %s", model_name)
+    logger.debug("Calculated the sigmoid of model")
 
     for prob in sigmoid_probs.values():
         if prob >= threshold:
-            isDiffusionImage = True  # Image is classified as fake
+            is_diffusion_image = True  # Image is classified as fake
             break
         else:
-            isDiffusionImage = False
+            is_diffusion_image = False
 
     # Fuse both models outputs
 
@@ -180,7 +169,7 @@ def process_image(image_path, preloaded_models=None):
 
     # Classification based on fused output
 
-    isDiffusionImageFused = bool(
+    is_diffusion_image_fused = bool(
         fused_sigmoid_prob >= threshold
     )  # Convert to Python bool
 
@@ -215,8 +204,8 @@ def process_image(image_path, preloaded_models=None):
             "probabilities": sigmoid_probs,
             "fusedLogit": fused_logit,
             "fusedProbability": fused_sigmoid_prob,
-            "isDiffusionImage": isDiffusionImage,
-            "isDiffusionImageFused": isDiffusionImageFused,
+            "is_diffusion_image": is_diffusion_image,
+            "is_diffusion_imageFused": is_diffusion_image_fused,
             "executionTime": execution_time,
         },
     }
@@ -232,10 +221,7 @@ def main():
         description="Diffusion detector inference on a single image"
     )
     parser.add_argument(
-        "--image_path", 
-        type=str, 
-        required=True, 
-        help="Path to the image file"
+        "--image_path", type=str, required=True, help="Path to the image file"
     )
     parser.add_argument(
         "--log_level",

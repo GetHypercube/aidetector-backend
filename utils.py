@@ -34,8 +34,8 @@ def setup_logger(name, level=logging.DEBUG):
     Returns:
         logging.Logger: Configured logger.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    module_logger = logging.getLogger(name)
+    module_logger.setLevel(level)
 
     # Create handler and formatter
     handler = logging.StreamHandler()
@@ -43,24 +43,36 @@ def setup_logger(name, level=logging.DEBUG):
     handler.setFormatter(formatter)
 
     # Avoid duplicate logging
-    if not logger.handlers:
-        logger.addHandler(handler)
+    if not module_logger.handlers:
+        module_logger.addHandler(handler)
 
-    return logger
-
+    return module_logger
 
 # Configure logger for utils.py
 logger = setup_logger(__name__)
 
 
 def flatten_json(y):
+    """
+    Flattens a nested JSON object into a flat dictionary.
+
+    This function takes a nested JSON object (which may contain nested dictionaries
+    and lists) and converts it into a flat dictionary with compound keys representing
+    the paths to each value in the original JSON structure.
+
+    Args:
+        y (dict): The JSON object to flatten.
+
+    Returns:
+        dict: A flattened dictionary with compound keys.
+    """
     out = {}
 
     def flatten(x, name=''):
-        if type(x) is dict:
+        if isinstance(x, dict):
             for a in x:
                 flatten(x[a], name + a[0].upper() + a[1:])
-        elif type(x) is list:
+        elif isinstance(x, list):
             i = 0
             for a in x:
                 flatten(a, name + str(i) + '_')
@@ -73,18 +85,33 @@ def flatten_json(y):
 
 
 def write_to_csv(results, output_file):
+    """
+    Writes a list of results to a CSV file, flattening any nested structures.
+
+    This function takes a list of results, where each result is expected to be a dictionary
+    (potentially with nested structures), and writes them to a CSV file. Each result is
+    flattened into a single row in the CSV file.
+
+    Args:
+        results (list): A list of dictionaries to be written to the CSV file.
+        output_file (str): The path of the output CSV file.
+
+    Note:
+        The CSV file's columns are dynamically determined based on the keys of the
+        flattened dictionaries.
+    """
     with open(output_file, mode='w', newline='', encoding='utf-8') as file:
         writer = None
+        for result in results:
+            flattened_result = flatten_json(result)
 
-        flattened_result = flatten_json(results)
+            # Initialize CSV writer and write headers only once
+            if writer is None:
+                writer = csv.DictWriter(file, fieldnames=flattened_result.keys())
+                writer.writeheader()
 
-        # Initialize CSV writer and write headers
-        if writer is None:
-            writer = csv.DictWriter(file, fieldnames=flattened_result.keys())
-            writer.writeheader()
-
-        # Write the row
-        writer.writerow(flattened_result)
+            # Write each row
+            writer.writerow(flattened_result)
 
 
 def calculate_sigmoid_probabilities(logits_dict):
