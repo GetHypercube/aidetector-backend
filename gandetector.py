@@ -117,7 +117,7 @@ def process_image(image_path, preloaded_models=None):
         "inferenceResults": {
             "logits": logits,
             "probabilities": sigmoid_probs,
-            "is_gan_image": is_gan_image,
+            "isGanImage": is_gan_image,
             "executionTime": execution_time,
         },
     }

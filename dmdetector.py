@@ -199,8 +199,8 @@ def process_image(image_path, preloaded_models=None):
             "probabilities": sigmoid_probs,
             "fusedLogit": fused_logit,
             "fusedProbability": fused_sigmoid_prob,
-            "is_diffusion_image": is_diffusion_image,
-            "is_diffusion_imageFused": is_diffusion_image_fused,
+            "isDiffusionImage": is_diffusion_image,
+            "isDiffusionImageFused": is_diffusion_image_fused,
             "executionTime": execution_time,
         },
     }
