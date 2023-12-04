@@ -14,7 +14,7 @@ from PIL import Image
 from networks.resnet50nodown import resnet50nodown
 from utils import (
     setup_logger,
-    print_memory_usage,
+    memory_usage,
     calculate_sigmoid_probabilities,
 )
 
@@ -49,7 +49,7 @@ def load_model(model_name, device):
     model = resnet50nodown(device, model_config["model_path"])
 
     logger.info("Model %s loaded", model_name)
-    print_memory_usage()
+    logger.info(memory_usage())
 
     return model
 
@@ -94,7 +94,7 @@ def process_image(image_path, preloaded_models=None):
             del model
             torch.cuda.empty_cache()
             logger.info("Model %s unloaded", model_name)
-            print_memory_usage()
+            logger.info(memory_usage())
 
     execution_time = time.time() - start_time
 

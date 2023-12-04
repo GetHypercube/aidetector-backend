@@ -11,8 +11,8 @@ Functions:
     validate_image_file(image_path):
         Validates the file format of an image and checks if it's a valid image
         file.
-    print_memory_usage():
-        Prints the current memory usage of the process to the console.
+    memory_usage():
+        Returns the current memory usage of the process to the console.
 """
 
 import os
@@ -49,10 +49,6 @@ def setup_logger(name, level=logging.DEBUG):
         module_logger.addHandler(handler)
 
     return module_logger
-
-
-# Configure logger for utils.py
-logger = setup_logger(__name__)
 
 
 def flatten_json(y):
@@ -162,7 +158,6 @@ def validate_image_file(image_path):
 
     # Check file extension
     if not image_path.lower().endswith(valid_extensions):
-        logger.warning("Unsupported file format. Accepts only JPEG, PNG, and WebP.")
         raise ValueError("Unsupported file format. Accepts only JPEG, PNG, and WebP.")
 
     # Validate with PIL
@@ -170,7 +165,6 @@ def validate_image_file(image_path):
         with Image.open(image_path) as img:
             img.verify()  # Verifies that an image can be opened
     except (UnidentifiedImageError, IOError) as exc:
-        logger.warning("Invalid image file or path.")
         raise ValueError("Invalid image file or path.") from exc
 
     return True
@@ -213,11 +207,11 @@ def compress_and_resize_image(image_path, max_size=(1024, 1024), output_path=Non
         return processed_image_path
 
 
-def print_memory_usage():
+def memory_usage():
     """
     Prints the current memory usage of the process.
     """
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
     memory_used = mem_info.rss / (1024 * 1024)
-    logger.info("Memory used: %.2f MB", memory_used)
+    return memory_used

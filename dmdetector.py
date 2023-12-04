@@ -16,7 +16,7 @@ import torchvision.transforms as transforms
 import networks.resnet_mod as resnet_mod
 from utils import (
     setup_logger,
-    print_memory_usage,
+    memory_usage,
     calculate_sigmoid_probabilities,
 )
 
@@ -58,7 +58,7 @@ def load_model(model_name, device):
     model = model.to(device).eval()
 
     logger.info("Model %s loaded", model_name)
-    print_memory_usage()
+    logger.info(memory_usage())
 
     return model
 
@@ -138,7 +138,7 @@ def process_image(image_path, preloaded_models=None):
             del model
             torch.cuda.empty_cache()
             logger.info("Model %s unloaded", model_name)
-            print_memory_usage()
+            logger.info(memory_usage())
 
     execution_time = time.time() - start_time
 

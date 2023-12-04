@@ -26,7 +26,7 @@ from utils import (
     validate_image_file,
     write_to_csv,
     compress_and_resize_image,
-    print_memory_usage,
+    memory_usage,
 )
 from dmdetector import (
     process_image as dm_process_image,
@@ -63,14 +63,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        print_memory_usage()
+        logger.info(memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        print_memory_usage()
+        logger.info(memory_usage())
 
     logger.info("Model preloading complete!")
 
@@ -208,7 +208,8 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
+    logging_level = log_levels.get(args.log_level.upper(), logging.INFO)
+    setup_logger(__name__, logging_level)
 
     # Start timing
     start_time = time()
