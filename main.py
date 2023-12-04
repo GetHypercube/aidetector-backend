@@ -89,14 +89,18 @@ def process_folder(folder_path, models):
     Returns:
         list: A list of tuples, each containing the file path and the image processing results.
     """
+def process_folder(folder_path, models):
     results = []
     valid_extensions = (".png", ".jpg", ".jpeg", ".webp")
     for extension in valid_extensions:
         search_pattern = os.path.join(folder_path, "**", "*" + extension)
         for filepath in glob.iglob(search_pattern, recursive=True):
             image_results = process_image(filepath, models)
-            results.append((filepath, image_results))
+            image_data = {"filepath": filepath}
+            image_data.update(image_results)
+            results.append(image_data)
     return results
+
 
 
 def process_image(image_path, models):
@@ -125,7 +129,7 @@ def process_image(image_path, models):
         return logger.error("Image %s is not valid: %s", image_path, e)
 
     image_results = {}
-    image_results["path"] = processed_image_path
+    # image_results["path"] = processed_image_path
     if "dMDetectorResults" in models:
         logger.info("Starting DM detection on %s", processed_image_path)
         image_results["dMDetectorResults"] = dm_process_image(
