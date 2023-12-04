@@ -20,11 +20,13 @@ import json
 import logging
 import glob
 from time import time
+import torch
 from utils import (
     setup_logger,
     validate_image_file,
     write_to_csv,
     compress_and_resize_image,
+    print_memory_usage,
 )
 from dmdetector import (
     process_image as dm_process_image,
@@ -42,6 +44,35 @@ from exifdetector import (
 from explainability import craft_explanation
 
 logger = setup_logger(__name__)
+
+# Global variables to store loaded models
+dm_loaded_models = {}
+gan_loaded_models = {}
+
+
+def preload_models():
+    """
+    Preloads models into memory for faster inference.
+    """
+    logger.info("Starting model preloading...")
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    # Preload DM models
+    for model_name in dm_models_config:
+        dm_loaded_models[model_name] = load_dm_model(model_name, device)
+
+        logger.info("Loaded DM model: %s", model_name)
+        print_memory_usage()
+
+    # Preload GAN models
+    for model_name in gan_models_config:
+        gan_loaded_models[model_name] = load_gan_model(model_name, device)
+
+        logger.info("Loaded GAN model: %s", model_name)
+        print_memory_usage()
+
+    logger.info("Model preloading complete!")
 
 
 def process_folder(folder_path, models):
@@ -97,13 +128,17 @@ def process_image(image_path, models):
     image_results["path"] = processed_image_path
     if "dMDetectorResults" in models:
         logger.info("Starting DM detection on %s", processed_image_path)
-        image_results["dMDetectorResults"] = dm_process_image(processed_image_path)
+        image_results["dMDetectorResults"] = dm_process_image(
+            processed_image_path, preloaded_models=dm_loaded_models
+        )
     if "gANDetectorResults" in models:
         logger.info("Starting GAN detection on %s", processed_image_path)
-        image_results["gANDetectorResults"] = gan_process_image(processed_image_path)
+        image_results["gANDetectorResults"] = gan_process_image(
+            processed_image_path, preloaded_models=gan_loaded_models
+        )
     if "exifDetectorResults" in models:
-        logger.info("Starting EXIF detection on %s", processed_image_path)
-        image_results["exifDetectorResults"] = exif_process_image(processed_image_path)
+        logger.info("Starting EXIF detection on %s", image_path)
+        image_results["exifDetectorResults"] = exif_process_image(image_path)
 
     # Only add to preliminary_results if the key exists
     preliminary_results = {}
@@ -112,9 +147,9 @@ def process_image(image_path, models):
             preliminary_results[model_key] = image_results[model_key]
 
     if "explainabilityResults" in models:
-        logger.info("Starting explainability detection on %s", image_path)
+        logger.info("Starting explainability detection on %s", processed_image_path)
         image_results["explainabilityResults"] = craft_explanation(
-            image_path, preliminary_results
+            processed_image_path, preliminary_results
         )
     return image_results
 
@@ -176,6 +211,7 @@ def main():
     start_time = time()
 
     if args.folder_path:
+        preload_models()
         folder_results = process_folder(args.folder_path, args.models)
         write_to_csv(folder_results, args.output_csv)
         # End timing

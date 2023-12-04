@@ -1,11 +1,12 @@
 """
 This module provides functionality to interact with GPT Vision from OpenAI for image analysis. 
-It includes methods to retrieve API keys from AWS Secrets Manager, encode images, and send requests to OpenAI's 
-API for crafting explanations of images based on analysis results.
+It includes methods to retrieve API keys from AWS Secrets Manager, encode images, and 
+send requests to OpenAI's API for crafting explanations of images based on analysis results.
 
 Functions:
 - get_secret: Retrieves an API key from AWS Secrets Manager.
-- craft_explanation: Sends an image and its analysis results to GPT Vision and crafts an explanation.
+- craft_explanation: Sends an image and its analysis results to GPT Vision and crafts an 
+                        explanation.
 """
 
 import requests
@@ -20,11 +21,13 @@ def get_secret():
     """
     Retrieves the OpenAI API key stored in AWS Secrets Manager.
 
-    This function fetches the secret named 'aidetector-prod/OPENAI_API_KEY' from AWS Secrets Manager in
-    the 'us-east-1' region. It handles any client errors during the retrieval process.
+    This function fetches the secret named 'aidetector-prod/OPENAI_API_KEY' from AWS Secrets 
+    Manager in the 'us-east-1' region. It handles any client errors during the retrieval 
+    process.
 
     Returns:
-        str: The secret string containing the OpenAI API key, or an exception message if an error occurs.
+        str: The secret string containing the OpenAI API key, or an exception message 
+                if an error occurs.
 
     Raises:
         ClientError: An error thrown by boto3 if AWS Secrets Manager request fails.
@@ -61,7 +64,10 @@ def craft_explanation(image_path, analysis_results):
     """
     Sends an image and its analysis results to GPT Vision for crafting an explanation.
 
-    This function encodes the image located at 'image_path' to a base64 string, constructs a prompt including the analysis results, and sends a request to OpenAI's GPT-4 Vision model. The function handles the response and returns a crafted explanation or an error message.
+    This function encodes the image located at 'image_path' to a base64 string, 
+    constructs a prompt including the analysis results, and sends a request to OpenAI's 
+    GPT-4 Vision model. The function handles the response and returns a crafted 
+    explanation or an error message.
 
     Args:
         image_path (str): The file path of the image to be analyzed.
