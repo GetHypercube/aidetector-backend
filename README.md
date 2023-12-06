@@ -76,13 +76,15 @@ Please see `main.py` for additional options
 
 To build and run the container for development (CPU):
 
-`docker build -t aidetector-backend .`
-
-`docker run --rm -p 8080:80 aidetector-backend`
+```
+docker build -t aidetector-backend .
+docker run --rm -p 8080:80 aidetector-backend
+```
 
 To build and run the container for development (GPU):
 
-`docker build -t aidetector-backend-gpu -f Dockerfile.GPU .`
-
-`docker run --rm --gpus all -p 8080:80 aidetector-backend-gpu`
+```
+docker build -t aidetector-backend-gpu -f Dockerfile.GPU .
+docker run --rm --gpus all -p 8080:80 aidetector-backend-gpu
+```
 

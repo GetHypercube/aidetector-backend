@@ -143,8 +143,9 @@ def process_image(image_path, preloaded_models=None):
     execution_time = time.time() - start_time
 
     # Calculate if the image is fake or not
+    # @TODO: Current method could lead to more false positives
 
-    threshold = 0.5
+    threshold = 0.4
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 
@@ -161,12 +162,6 @@ def process_image(image_path, preloaded_models=None):
 
     fused_logit = np.mean(list(logits.values()))
     fused_sigmoid_prob = np.mean(list(sigmoid_probs.values()))
-
-    # Classification based on fused output
-
-    is_diffusion_image_fused = bool(
-        fused_sigmoid_prob >= threshold
-    )  # Convert to Python bool
 
     # @TODO: Calibration with platt scaling
 
@@ -200,7 +195,6 @@ def process_image(image_path, preloaded_models=None):
             "fusedLogit": fused_logit,
             "fusedProbability": fused_sigmoid_prob,
             "isDiffusionImage": is_diffusion_image,
-            "isDiffusionImageFused": is_diffusion_image_fused,
             "executionTime": execution_time,
         },
     }
