@@ -87,11 +87,14 @@ def craft_explanation(image_path, analysis_results):
 
     # Craft the prompt for the explanation
     prompt = f"""
-    The following JSON results from predicting whether the image is synthetic with 4 models, 2 GAN, and 2 diffusion detection models and an analysis of the EXIF information
-
-    If any prediction probabilities cross a 0.5 threshold, the image is tagged as synthetic by either the GAN or the diffusion detector, or both.
-
-    Please describe in less than 50 words the image provided, and do some explainability of why the models detected the image as AI-generated or not. Make it funny.
+    The following JSON results are from predicting whether the image is synthetic with 5 different models. 
+    2 models finetuned to detect GANs synthetic images, 2 models are finetuned for diffusion models and 
+    an analysis of the EXIF and metadata information of the image is made.
+    For the GAN and diffusion models, if any prediction probabilities cross a 0.5 threshold, the image is 
+    classifies the image as synthetic. 
+    If specific meta data is encountered in the image, the EXIF detector classifies the image as synthetic.
+    Please in less than 50 words describe what is the image the user provided and 
+    explain the results of the detectors. Make it funny, but make it clear at the end if it is synthetic or not.
     
     {analysis_results}
     """

@@ -166,7 +166,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--image_path", type=str, help="Path to the image file")
     group.add_argument(
-        "--folder_path", type=str, help="Path to the folder containing images"
+        "--image_folder", type=str, help="Path to the folder containing images"
     )
     parser.add_argument(
         "--log_level",
@@ -213,9 +213,9 @@ def main():
     # Start timing
     start_time = time()
 
-    if args.folder_path:
+    if args.image_folder:
         preload_models()
-        folder_results = process_folder(args.folder_path, args.models)
+        folder_results = process_folder(args.image_folder, args.models)
         write_to_csv(folder_results, args.output_csv)
         # End timing
         end_time = time()

@@ -10,7 +10,7 @@ Follow these steps to set up and use the DMimageDetection project:
 
 1. Clone the repository:
 ```
-git clone https://github.com/grip-unina/DMimageDetection.git
+git clone https://github.com/GetHypercube/aidetector-backend.git
 ```
 
 2. Create a Python virtual environment:
@@ -33,7 +33,7 @@ python -m venv .env
 python -m pip install --upgrade pip
 ```
 
-5. Install the necessary requirements**:
+5. Install the necessary requirements:
 ```
 pip install -r requirements.txt
 ```
@@ -46,6 +46,10 @@ To run the detector on an image:
 
 `python main.py --image_path image.jpg` 
 
+To run the detector on a folder:
+
+`python main.py --image_folder image.jpg` 
+
 For just running the diffusion detector:
 
 `python dmdetector.py --image_path image.jpg`
@@ -54,7 +58,9 @@ For just running the GAN detector:
 
 `python gandetector.py --image_path image.jpg`
 
-If you want to see memory usage, you can use the `—debug` flag.
+For just running the EXIF detector:
+
+`python gandetector.py --image_path image.jpg`
 
 If you want to use the API, first run the server:
 
@@ -63,6 +69,8 @@ If you want to use the API, first run the server:
 In Windows, run the CURL command:
 
 `curl -X POST -F "file=@real_biggan.png" http://localhost:80/detect`
+
+Please see `main.py` for additional options
 
 ## Docker usage
 

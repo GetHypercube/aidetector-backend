@@ -99,7 +99,7 @@ def process_image(image_path):
         if key not in exif_dict:  # Avoid overwriting existing EXIF data
             exif_dict[key] = value
 
-    print(exif_dict)
+    logger.debug("%s", exif_dict)
 
     execution_time = time.time() - start_time
 
@@ -110,6 +110,12 @@ def process_image(image_path):
     ):
         is_synthetic_image = True
         infered_model = "Midjourney"
+    elif(
+        "parameters" in exif_dict
+        and "prompt:" in exif_dict["parameters"]
+    ):
+        is_synthetic_image = True
+        infered_model = "Stable Diffusion"
     else:
         is_synthetic_image = False
         infered_model = None
@@ -139,7 +145,7 @@ def main():
     parser.add_argument(
         "--log_level",
         type=str,
-        default="DEBUG",
+        default="INFO",
         help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
 
@@ -152,7 +158,7 @@ def main():
         "ERROR": logging.ERROR,
         "CRITICAL": logging.CRITICAL,
     }
-    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.DEBUG))
+    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.INFO))
     return process_image(args.image_path)
 
 
