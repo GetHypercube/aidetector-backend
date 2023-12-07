@@ -2,6 +2,9 @@
 GAN Detector: Inference on a single image using pre-trained models for GAN
 detection. It prints out the logits returned by each model and the final
 label based on these logits.
+
+Based on: https://github.com/grip-unina/GANimageDetection
+
 """
 import argparse
 import time
@@ -24,13 +27,11 @@ models_config = {
         "model_path": "weights/gan/gandetection_resnet50nodown_progan.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
-        "patch_size": None,
     },
     "gandetection_resnet50nodown_stylegan2": {
         "model_path": "weights/gan/gandetection_resnet50nodown_stylegan2.pth",
         "arch": "res50stride1",
         "norm_type": "resnet",
-        "patch_size": None,
     },
 }
 

@@ -3,6 +3,9 @@ Diffusor detector: Inference on a single image using pre-trained models for
 GAN detection.
 It prints out the logits returned by each model and the final label based on
 these logits.
+
+Based on: https://github.com/grip-unina/DMimagedetection
+
 """
 import traceback
 import argparse
