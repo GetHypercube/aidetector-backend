@@ -16,7 +16,7 @@ import torch
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
-import networks.resnet_mod as resnet_mod
+import models.networks.resnet_mod as resnet_mod
 from utils import (
     setup_logger,
     memory_usage,

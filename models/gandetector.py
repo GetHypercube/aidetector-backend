@@ -13,7 +13,7 @@ import logging
 import torch
 import numpy as np
 from PIL import Image
-from networks.resnet50nodown import resnet50nodown
+from models.networks.resnet50nodown import resnet50nodown
 from utils import (
     setup_logger,
     memory_usage,

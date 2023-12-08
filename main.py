@@ -27,17 +27,17 @@ from utils import (
     compress_and_resize_image,
     memory_usage,
 )
-from dmdetector import (
+from models.dmdetector import (
     process_image as dm_process_image,
     load_model as load_dm_model,
     models_config as dm_models_config,
 )
-from gandetector import (
+from models.gandetector import (
     process_image as gan_process_image,
     load_model as load_gan_model,
     models_config as gan_models_config,
 )
-from exifdetector import (
+from models.exifdetector import (
     process_image as exif_process_image,
 )
 from explainability import craft_explanation
