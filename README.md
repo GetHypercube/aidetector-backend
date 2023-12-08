@@ -50,6 +50,10 @@ To run the detector on a folder:
 
 `python main.py --image_folder image.jpg` 
 
+To run the detector on a folder and a specific models:
+
+`python main.py --image_folder image.jpg --model dMDetectorResults` 
+
 For just running the diffusion detector:
 
 `python dmdetector.py --image_path image.jpg`

@@ -144,7 +144,7 @@ def process_image(image_path, models):
 
     # Only add to preliminary_results if the key exists
     preliminary_results = {}
-    for model_key in ["dMDetectorResults", "gANDetectorResults", " "]:
+    for model_key in ["dMDetectorResults", "gANDetectorResults", "exifDetectorResults"]:
         if model_key in image_results:
             preliminary_results[model_key] = image_results[model_key]
 
