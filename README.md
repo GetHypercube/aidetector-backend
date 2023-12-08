@@ -70,6 +70,8 @@ If you want to use the API, first run the server:
 
 `python api.py`
 
+To create the CSV file neccesary to 
+
 In Windows, run the CURL command:
 
 `curl -X POST -F "file=@real_biggan.png" http://localhost:80/detect`

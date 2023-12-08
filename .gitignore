@@ -1,11 +1,4 @@
-.env
-weights
-__pycache__
 .vscode
-*.jpg
-*.jpeg
-*.png
-*.csv
-example_images
-tmp
+.env
 .DS_Store
+__pycache__

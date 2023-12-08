@@ -74,7 +74,7 @@ def preload_models():
     logger.info("Model preloading complete!")
 
 
-def process_folder(folder_path, models):
+def process_folder(folder_path, models, true_label=None):
     """
     Processes all JPEG images in a specified folder (and its subfolders) using given models.
 
@@ -94,7 +94,7 @@ def process_folder(folder_path, models):
         search_pattern = os.path.join(folder_path, "**", "*" + extension)
         for filepath in glob.iglob(search_pattern, recursive=True):
             image_results = process_image(filepath, models)
-            image_data = {"filepath": filepath}
+            image_data = {"filepath": filepath, "true_label": true_label}
             image_data.update(image_results)
             results.append(image_data)
     return results
@@ -194,8 +194,14 @@ def main():
     parser.add_argument(
         "--output_csv",
         type=str,
-        default="results.csv",
+        default="csv/results.csv",
         help="Path to the output CSV file",
+    )
+    parser.add_argument(
+    "--true_label",
+    type=lambda x: (str(x).lower() == 'true'),
+    default=None,
+    help="Specify the true label of the images in the folder as Real (True) or Fake (False)"
     )
 
     args = parser.parse_args()
@@ -215,7 +221,7 @@ def main():
 
     if args.image_folder:
         preload_models()
-        folder_results = process_folder(args.image_folder, args.models)
+        folder_results = process_folder(args.image_folder, args.models, args.true_label)
         write_to_csv(folder_results, args.output_csv)
         # End timing
         end_time = time()
