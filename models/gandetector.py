@@ -120,7 +120,7 @@ def process_image(image_path, preloaded_models=None):
     fused_sigmoid_prob = np.mean(list(sigmoid_probs.values()))
 
     detection_output = {
-        "model": "gan-model-detector",
+        # "model": "gan-model-detector",
         "inferenceResults": {
             "logits": logits,
             "probabilities": sigmoid_probs,

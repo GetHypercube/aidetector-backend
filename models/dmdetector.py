@@ -191,7 +191,7 @@ def process_image(image_path, preloaded_models=None):
     # adjusted_logit = platt_model.predict_proba([new_logit])[0][1]
 
     detection_output = {
-        "model": "diffusion-model-detector",
+        # "model": "diffusion-model-detector",
         "inferenceResults": {
             "logits": logits,
             "probabilities": sigmoid_probs,

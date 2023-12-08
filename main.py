@@ -100,7 +100,6 @@ def process_folder(folder_path, models, true_label=None):
     return results
 
 
-
 def process_image(image_path, models):
     """
     Processes a single image using specified models.
@@ -198,10 +197,10 @@ def main():
         help="Path to the output CSV file",
     )
     parser.add_argument(
-    "--true_label",
-    type=lambda x: (str(x).lower() == 'true'),
-    default=None,
-    help="Specify the true label of the images in the folder as Real (True) or Fake (False)"
+        "--true_label",
+        type=lambda x: (str(x).lower() == "true"),
+        default=None,
+        help="Specify the true label of the images in the folder as synthetic (True) or not synthetic (False)",
     )
 
     args = parser.parse_args()

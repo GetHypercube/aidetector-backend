@@ -121,7 +121,7 @@ def process_image(image_path):
         infered_model = None
 
     detection_output = {
-        "model": "exif-model-detector",
+        # "model": "exif-model-detector",
         "inferenceResults": {
             "isSyntheticImage": is_synthetic_image,
             "inferedModel": infered_model,
