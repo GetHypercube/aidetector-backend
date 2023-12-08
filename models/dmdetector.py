@@ -146,9 +146,8 @@ def process_image(image_path, preloaded_models=None):
     execution_time = time.time() - start_time
 
     # Calculate if the image is fake or not
-    # @TODO: Current method could lead to more false positives
 
-    threshold = 0.4
+    threshold = 0.2
 
     sigmoid_probs = calculate_sigmoid_probabilities(logits)
 

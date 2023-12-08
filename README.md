@@ -70,7 +70,11 @@ If you want to use the API, first run the server:
 
 `python api.py`
 
-To create the CSV file neccesary to 
+To create the CSV file neccesary to calculate evaluations of the models:
+
+`python main.py --image_folder tests --true_label True`
+
+And to calculate evaluations, open `evaluations.ipynb` notebook.
 
 In Windows, run the CURL command:
 
