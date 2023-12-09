@@ -2,6 +2,7 @@
 Exif Detector: Inference on a single image using meta information
 """
 
+import re
 import argparse
 import time
 import json
@@ -31,7 +32,7 @@ def process_image(image_path):
     start_time = time.time()
 
     # Maximum number of pixels allowed in an image
-    # MAX_PIXELS = 128 * 1000000
+    # @TODO: MAX_PIXELS = 128 * 1000000
 
     # Read the image data using PIL
     image = Image.open(image_path)
@@ -103,7 +104,14 @@ def process_image(image_path):
 
     execution_time = time.time() - start_time
 
-    if (
+    # # Regex for DALL-E filename pattern
+    dalle_regex = r'^DALL.*\.png$'
+
+    print(image.filename)
+    if re.match(dalle_regex, image.filename):
+        is_synthetic_image = True
+        infered_model = "DALLE-3"
+    elif (
         "Author" in exif_dict
         and "Description" in exif_dict
         and "Job ID:" in exif_dict["Description"]
