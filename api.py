@@ -165,7 +165,8 @@ def detect():
     gan_results = gan_process_image(processed_image_path, preloaded_models=gan_loaded_models)
 
     # Run EXIF detector
-    exif_results = exif_process_image(image_path)
+    original_filename = os.path.basename(file.filename)
+    exif_results = exif_process_image(image_path, original_filename)
 
     # Run explainability generator
     preliminary_results = {

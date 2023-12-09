@@ -139,7 +139,8 @@ def process_image(image_path, models):
         )
     if "exifDetectorResults" in models:
         logger.info("Starting EXIF detection on %s", image_path)
-        image_results["exifDetectorResults"] = exif_process_image(image_path)
+        original_filename = os.path.basename(image_path)
+        image_results["exifDetectorResults"] = exif_process_image(image_path, original_filename)
 
     # Only add to preliminary_results if the key exists
     preliminary_results = {}
