@@ -54,18 +54,6 @@ To run the detector on a folder and a specific models:
 
 `python main.py --image_folder image.jpg --model dMDetectorResults` 
 
-For just running the diffusion detector:
-
-`python dmdetector.py --image_path image.jpg`
-
-For just running the GAN detector:
-
-`python gandetector.py --image_path image.jpg`
-
-For just running the EXIF detector:
-
-`python gandetector.py --image_path image.jpg`
-
 If you want to use the API, first run the server:
 
 `python api.py`

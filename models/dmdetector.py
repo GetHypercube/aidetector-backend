@@ -8,16 +8,13 @@ Based on: https://github.com/grip-unina/DMimagedetection
 
 """
 import traceback
-import argparse
 import time
-import json
-import logging
 import torch
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 import models.networks.resnet_mod as resnet_mod
-from utils import (
+from utils.general import (
     setup_logger,
     memory_usage,
     calculate_sigmoid_probabilities,
@@ -61,7 +58,7 @@ def load_model(model_name, device):
     model = model.to(device).eval()
 
     logger.info("Model %s loaded", model_name)
-    logger.info(memory_usage())
+    logger.info("Memory usage: %s", memory_usage())
 
     return model
 
@@ -141,7 +138,7 @@ def process_image(image_path, preloaded_models=None):
             del model
             torch.cuda.empty_cache()
             logger.info("Model %s unloaded", model_name)
-            logger.info(memory_usage())
+            logger.info("Memory usage: %s", memory_usage())
 
     execution_time = time.time() - start_time
 
@@ -202,39 +199,3 @@ def process_image(image_path, preloaded_models=None):
     }
 
     return detection_output
-
-
-def main():
-    """
-    Command-line interface for the Diffusor detector.
-    """
-    parser = argparse.ArgumentParser(
-        description="Diffusion detector inference on a single image"
-    )
-    parser.add_argument(
-        "--image_path", type=str, required=True, help="Path to the image file"
-    )
-    parser.add_argument(
-        "--log_level",
-        type=str,
-        default="INFO",
-        help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
-    )
-
-    args = parser.parse_args()
-    # Configure logger
-    log_levels = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-    }
-    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.INFO))
-
-    return process_image(args.image_path)
-
-
-if __name__ == "__main__":
-    output = main()
-    print(json.dumps(output, indent=4))

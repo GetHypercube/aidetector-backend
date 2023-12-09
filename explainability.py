@@ -12,7 +12,7 @@ Functions:
 import requests
 import boto3
 from botocore.exceptions import ClientError
-from utils import encode_image, setup_logger
+from utils.general import encode_image, setup_logger
 
 logger = setup_logger(__name__)
 

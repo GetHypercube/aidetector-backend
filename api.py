@@ -12,7 +12,7 @@ from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
-from utils import (
+from utils.general import (
     setup_logger,
     memory_usage,
     validate_image_file,

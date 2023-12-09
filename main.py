@@ -20,7 +20,7 @@ import logging
 import glob
 from time import time
 import torch
-from utils import (
+from utils.general import (
     setup_logger,
     validate_image_file,
     write_to_csv,
@@ -62,14 +62,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        logger.info(memory_usage())
+        logger.info("Memory usage: %s", memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        logger.info(memory_usage())
+        logger.info("Memory usage: %s", memory_usage())
 
     logger.info("Model preloading complete!")
 
@@ -126,7 +126,7 @@ def process_image(image_path, models):
         return logger.error("Image %s is not valid: %s", image_path, e)
 
     image_results = {}
-    # image_results["path"] = processed_image_path
+
     if "dMDetectorResults" in models:
         logger.info("Starting DM detection on %s", processed_image_path)
         image_results["dMDetectorResults"] = dm_process_image(

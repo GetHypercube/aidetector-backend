@@ -2,15 +2,13 @@
 Exif Detector: Inference on a single image using meta information
 """
 
+import os
 import re
-import argparse
 import time
-import json
-import logging
 from PIL import Image
 from PIL.ExifTags import TAGS
 from PIL.PngImagePlugin import PngImageFile
-from utils import (
+from utils.general import (
     setup_logger,
     validate_image_file,
 )
@@ -105,10 +103,13 @@ def process_image(image_path):
     execution_time = time.time() - start_time
 
     # # Regex for DALL-E filename pattern
-    dalle_regex = r'^DALL.*\.png$'
+    # @TODO: Make it more specific
+    dalle_regex = r"DALL·E \d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.\d{2}"
 
-    print(image.filename)
-    if re.match(dalle_regex, image.filename):
+    filename = os.path.basename(image_path)
+    logger.info("Applying regex to %s", filename)
+
+    if re.match(dalle_regex, filename):
         is_synthetic_image = True
         infered_model = "DALLE-3"
     elif (
@@ -138,38 +139,3 @@ def process_image(image_path):
     }
 
     return detection_output
-
-
-def main():
-    """
-    Command-line interface for the GAN detector.
-    """
-    parser = argparse.ArgumentParser(
-        description="EXIF detector inference on a single image"
-    )
-    parser.add_argument(
-        "--image_path", type=str, required=True, help="Path to the image file"
-    )
-    parser.add_argument(
-        "--log_level",
-        type=str,
-        default="INFO",
-        help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
-    )
-
-    args = parser.parse_args()
-    # Configure logger
-    log_levels = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-    }
-    setup_logger(__name__, log_levels.get(args.log_level.upper(), logging.INFO))
-    return process_image(args.image_path)
-
-
-if __name__ == "__main__":
-    output = main()
-    print(json.dumps(output, indent=4))
