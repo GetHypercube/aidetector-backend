@@ -57,14 +57,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        logger.info(memory_usage())
+        logger.info("Memory usage: %s", memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        logger.info(memory_usage())
+        logger.info("Memory usage: %s", memory_usage())
 
     logger.info("Model preloading complete!")
 
@@ -128,6 +128,7 @@ def detect():
         return jsonify({"error": "No file part"}), 400
 
     file = request.files["file"]
+    print(file.filename)
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
