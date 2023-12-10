@@ -8,15 +8,20 @@ results.
 import os
 import uuid
 from time import time
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
 from utils.general import (
     setup_logger,
-    memory_usage,
+    get_memory_usage,
     validate_image_file,
     compress_and_resize_image,
+)
+from utils.aws import (
+    aws_login
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -31,7 +36,7 @@ from models.gandetector import (
 from models.exifdetector import (
     process_image as exif_process_image,
 )
-from explainability import craft_explanation
+from models.explainability import craft_explanation
 
 # Setup logger for Flask application
 logger = setup_logger(__name__)
@@ -57,14 +62,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     logger.info("Model preloading complete!")
 
@@ -131,6 +136,36 @@ def detect():
     print(file.filename)
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
+
+    # TODO: Remove this validation for local and ECS
+    def has_access_to_secret(secret_name, region_name='us-east-1'):
+        """
+        Checks if the application has access to the specified AWS secret.
+        
+        Args:
+            secret_name (str): The name of the secret in AWS Secrets Manager.
+            region_name (str): The AWS region where the secret is stored. Defaults to 'us-east-1'.
+
+        Returns:
+            bool: True if access is available, False otherwise.
+        """
+        try:
+            client = boto3.client('secretsmanager', region_name=region_name)
+            client.get_secret_value(SecretId=secret_name)
+            return True
+        except (ClientError, NoCredentialsError) as e:
+            # Log the error for debugging purposes
+            logger.error("Error accessing secret %s: %s", secret_name, e)
+            return False
+
+    has_access_to_secret = has_access_to_secret("aidetector-prod/OPENAI_API_KEY", "us-east-1")
+
+    if has_access_to_secret:
+        logger.info("Role is working correctly")
+    else:
+        aws_access_key = os.getenv("AWS_ACCESS_KEY")
+        aws_secret_key = os.getenv("AWS_SECRET_KEY")
+        aws_login(aws_access_key, aws_secret_key)
 
     # Generate a random mnemonic filename with the original file extension
     _, ext = os.path.splitext(file.filename)
