@@ -187,9 +187,14 @@ def detect():
         return jsonify({"error": str(e)}), 400
 
     # Upload original image
-    upload_image_to_s3(image_path, "aidetector-results")
+    uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
+    if not uploaded_original:
+        logger.info("Error upload image to AWS: %s", uploaded_original)
+
     # Upload processed image
-    upload_image_to_s3(processed_image_path, "aidetector-results")
+    uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
+    if not uploaded_processed:
+        logger.info("Error upload image to AWS: %s", uploaded_processed)
 
     # Start timing
     start_time = time()
