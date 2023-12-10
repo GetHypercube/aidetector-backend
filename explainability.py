@@ -48,6 +48,7 @@ def get_secret():
     except ClientError as e:
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        print(f"An error occurred: {e}")
         return e
 
 
