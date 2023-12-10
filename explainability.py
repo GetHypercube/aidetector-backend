@@ -54,11 +54,11 @@ def get_secret():
 
 # Hardcode the API key
 # logger.debug("This is the secret for OPENAI %s", get_secret())
-# API_KEY = "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"
+API_KEY = "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"
 # Load the API key from an environment variable
 # API_KEY = os.getenv("OPENAI_API_KEY")
 # Load the API from AWS Secret Manager
-API_KEY = get_secret()
+# API_KEY = get_secret()
 
 
 def craft_explanation(image_path, analysis_results):
