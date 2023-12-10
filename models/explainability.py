@@ -54,7 +54,7 @@ def craft_explanation(image_path, analysis_results):
     {analysis_results}
     """
 
-    open_api_key = os.getenv("AWS_ACCESS_KEY")
+    open_api_key = os.getenv("OPENAI_API_KEY")
     if open_api_key:
         pass
     else:
