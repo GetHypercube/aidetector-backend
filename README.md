@@ -40,7 +40,13 @@ pip install -r requirements.txt
 
 6. Download the weights from this [link](https://aidetector-models.s3.amazonaws.com/weights.zip) and place them under `/weights` directory in your project folder.
 
-7. Create the appropriate `.env` file.
+7. You need to create a `.env` file with the following variables:
+
+```bash
+AWS_ACCESS_KEY=XXX
+AWS_SECRET_KEY=XXX
+OPENAI_SECRET_KEY=XXX
+```
 
 ## Usage
 
