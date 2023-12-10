@@ -14,13 +14,14 @@ from utils.aws import get_secret
 
 logger = setup_logger(__name__)
 
+
 def craft_explanation(image_path, analysis_results):
     """
     Sends an image and its analysis results to GPT Vision for crafting an explanation.
 
-    This function encodes the image located at 'image_path' to a base64 string, 
-    constructs a prompt including the analysis results, and sends a request to OpenAI's 
-    GPT-4 Vision model. The function handles the response and returns a crafted 
+    This function encodes the image located at 'image_path' to a base64 string,
+    constructs a prompt including the analysis results, and sends a request to OpenAI's
+    GPT-4 Vision model. The function handles the response and returns a crafted
     explanation or an error message.
 
     Args:
@@ -53,9 +54,12 @@ def craft_explanation(image_path, analysis_results):
     {analysis_results}
     """
 
-    OPENAI_API_KEY = get_secret('OPENAI_API_KEY')
+    open_api_key = get_secret("OPENAI_API_KEY")
 
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {OPENAI_API_KEY}"}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {open_api_key}",
+    }
 
     payload = {
         "model": "gpt-4-vision-preview",
@@ -91,6 +95,12 @@ def craft_explanation(image_path, analysis_results):
         else:
             logger.warning("Received an invalid response from OpenAI")
             return "Our explainability model is having some issues today"
-    except Exception as e:
-        logger.warning("Received an invalid response from OpenAI %s", e)
-        return "Our explainability model is having some issues today"
+    except requests.exceptions.Timeout:
+        logger.warning("Request to OpenAI timed out")
+        return "Request to the LLM that was going to explain this timed out. Please try again later."
+    except requests.exceptions.HTTPError as e:
+        logger.warning("HTTP error occurred: %s", e)
+        return "Request to the LLM that was going to explain this had a HTTP error. Please try again later."
+    except requests.exceptions.RequestException as e:
+        logger.warning("Error during request to OpenAI: %s", e)
+        return "Request to the LLM that was going to explain this had a HTTP error. Please try again later."

@@ -19,6 +19,8 @@ import json
 import logging
 import glob
 from time import time
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError
 from dotenv import load_dotenv
 import torch
 from utils.general import (
@@ -226,14 +228,35 @@ def main():
     logging_level = log_levels.get(args.log_level.upper(), logging.INFO)
     setup_logger(__name__, logging_level)
 
-    # Retrieve AWS credentials
-    AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
-    AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
+    # TODO: Remove this validation for local and ECS
+    def has_access_to_secret(secret_name, region_name='us-east-1'):
+        """
+        Checks if the application has access to the specified AWS secret.
+        
+        Args:
+            secret_name (str): The name of the secret in AWS Secrets Manager.
+            region_name (str): The AWS region where the secret is stored. Defaults to 'us-east-1'.
 
-    if aws_login(AWS_ACCESS_KEY, AWS_SECRET_KEY):
-        pass
+        Returns:
+            bool: True if access is available, False otherwise.
+        """
+        try:
+            client = boto3.client('secretsmanager', region_name=region_name)
+            client.get_secret_value(SecretId=secret_name)
+            return True
+        except (ClientError, NoCredentialsError) as e:
+            # Log the error for debugging purposes
+            logger.error("Error accessing secret %s: %s", secret_name, e)
+            return False
+
+    has_access_to_secret = has_access_to_secret("aidetector-prod/OPENAI_API_KEY", "us-east-1")
+
+    if has_access_to_secret:
+        logger.info("Role is working correctly")
     else:
-        return "Our explainability model is having some issues today"
+        aws_access_key = os.getenv("AWS_ACCESS_KEY")
+        aws_secret_key = os.getenv("AWS_SECRET_KEY")
+        aws_login(aws_access_key, aws_secret_key)
 
     # Start timing
     start_time = time()
