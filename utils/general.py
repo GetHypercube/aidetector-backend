@@ -11,7 +11,7 @@ Functions:
     validate_image_file(image_path):
         Validates the file format of an image and checks if it's a valid image
         file.
-    memory_usage():
+    get_memory_usage():
         Returns the current memory usage of the process to the console.
 """
 
@@ -49,7 +49,6 @@ def setup_logger(name, level=logging.INFO):
         module_logger.addHandler(handler)
 
     return module_logger
-
 
 def flatten_json(y):
     """
@@ -211,7 +210,7 @@ def compress_and_resize_image(image_path, max_size=(1024, 1024), output_path=Non
         return processed_image_path
 
 
-def memory_usage():
+def get_memory_usage():
     """
     Prints the current memory usage of the process.
     """

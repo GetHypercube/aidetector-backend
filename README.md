@@ -15,17 +15,17 @@ git clone https://github.com/GetHypercube/aidetector-backend.git
 
 2. Create a Python virtual environment:
 ```
-python -m venv .env
+python -m venv .venv
 ```
 
 3. Activate the Python environment:
 - For Windows:
   ```
-  .env\Scripts\activate
+  .venv\Scripts\activate
   ```
 - For OSX:
   ```
-  source .env/bin/activate
+  source .venv/bin/activate
   ```
 
 4. Upgrade pip:
@@ -39,6 +39,8 @@ pip install -r requirements.txt
 ```
 
 6. Download the weights from this [link](https://aidetector-models.s3.amazonaws.com/weights.zip) and place them under `/weights` directory in your project folder.
+
+7. Create the appropriate `.env` file.
 
 ## Usage
 

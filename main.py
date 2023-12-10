@@ -19,13 +19,17 @@ import json
 import logging
 import glob
 from time import time
+from dotenv import load_dotenv
 import torch
 from utils.general import (
     setup_logger,
     validate_image_file,
     write_to_csv,
     compress_and_resize_image,
-    memory_usage,
+    get_memory_usage,
+)
+from utils.aws import (
+    aws_login
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -40,7 +44,9 @@ from models.gandetector import (
 from models.exifdetector import (
     process_image as exif_process_image,
 )
-from explainability import craft_explanation
+from models.explainability import (
+    craft_explanation
+)
 
 logger = setup_logger(__name__)
 
@@ -48,6 +54,8 @@ logger = setup_logger(__name__)
 dm_loaded_models = {}
 gan_loaded_models = {}
 
+# Load environment variables from .env file
+load_dotenv()
 
 def preload_models():
     """
@@ -62,14 +70,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     logger.info("Model preloading complete!")
 
@@ -140,7 +148,9 @@ def process_image(image_path, models):
     if "exifDetectorResults" in models:
         logger.info("Starting EXIF detection on %s", image_path)
         original_filename = os.path.basename(image_path)
-        image_results["exifDetectorResults"] = exif_process_image(image_path, original_filename)
+        image_results["exifDetectorResults"] = exif_process_image(
+            image_path, original_filename
+        )
 
     # Only add to preliminary_results if the key exists
     preliminary_results = {}
@@ -201,7 +211,7 @@ def main():
         "--true_label",
         type=lambda x: (str(x).lower() == "true"),
         default=None,
-        help="Specify the true label of the images in the folder as synthetic (True) or not synthetic (False)",
+        help="Specify if the images in the folder as synthetic (True) or not synthetic (False)",
     )
 
     args = parser.parse_args()
@@ -215,6 +225,15 @@ def main():
     }
     logging_level = log_levels.get(args.log_level.upper(), logging.INFO)
     setup_logger(__name__, logging_level)
+
+    # Retrieve AWS credentials
+    AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
+    AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
+
+    if aws_login(AWS_ACCESS_KEY, AWS_SECRET_KEY):
+        pass
+    else:
+        return "Our explainability model is having some issues today"
 
     # Start timing
     start_time = time()

@@ -14,7 +14,7 @@ from flask import Flask, request, jsonify
 import torch
 from utils.general import (
     setup_logger,
-    memory_usage,
+    get_memory_usage,
     validate_image_file,
     compress_and_resize_image,
 )
@@ -31,7 +31,7 @@ from models.gandetector import (
 from models.exifdetector import (
     process_image as exif_process_image,
 )
-from explainability import craft_explanation
+from models.explainability import craft_explanation
 
 # Setup logger for Flask application
 logger = setup_logger(__name__)
@@ -57,14 +57,14 @@ def preload_models():
         dm_loaded_models[model_name] = load_dm_model(model_name, device)
 
         logger.info("Loaded DM model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     # Preload GAN models
     for model_name in gan_models_config:
         gan_loaded_models[model_name] = load_gan_model(model_name, device)
 
         logger.info("Loaded GAN model: %s", model_name)
-        logger.info("Memory usage: %s", memory_usage())
+        logger.info("Memory usage: %s", get_memory_usage())
 
     logger.info("Model preloading complete!")
 

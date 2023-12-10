@@ -11,3 +11,4 @@ exifread
 ipykernel
 scikit-learn
 matplotlib
+python-dotenv
