@@ -19,8 +19,6 @@ import json
 import logging
 import glob
 from time import time
-import boto3
-from botocore.exceptions import ClientError, NoCredentialsError
 from dotenv import load_dotenv
 import torch
 from utils.general import (
@@ -29,9 +27,6 @@ from utils.general import (
     write_to_csv,
     compress_and_resize_image,
     get_memory_usage,
-)
-from utils.aws import (
-    aws_login, upload_image_to_s3
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -134,11 +129,6 @@ def process_image(image_path, models):
 
     except ValueError as e:
         return logger.error("Image %s is not valid: %s", image_path, e)
-
-    # Upload original image
-    upload_image_to_s3(image_path, "aidetector-results")
-    # Upload processed image
-    upload_image_to_s3(processed_image_path, "aidetector-results")
 
     image_results = {}
 

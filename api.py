@@ -21,7 +21,7 @@ from utils.general import (
     compress_and_resize_image,
 )
 from utils.aws import (
-    aws_login
+    aws_login, upload_image_to_s3
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -185,6 +185,11 @@ def detect():
     except ValueError as e:
         logger.error("Image %s is not valid: %s", image_path, e)
         return jsonify({"error": str(e)}), 400
+
+    # Upload original image
+    upload_image_to_s3(image_path, "aidetector-results")
+    # Upload processed image
+    upload_image_to_s3(processed_image_path, "aidetector-results")
 
     # Start timing
     start_time = time()
