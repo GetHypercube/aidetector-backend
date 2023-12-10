@@ -4,9 +4,6 @@ It includes functions for AWS session configuration, uploading images to S3, and
 from AWS Secrets Manager.
 
 Functions:
-    aws_login(access_key, secret_key, region_name='us-east-1'): Configures AWS session with the 
-        provided credentials and region. Returns True if successful, False otherwise.
-    
     upload_image_to_s3(image_path, bucket_name, object_name=None): Uploads an image file to the  
         specified S3 bucket. The object name in the bucket is optional and defaults to the image 
         file's basename. Returns True if the upload is successful, or an error message if it fails.
@@ -24,29 +21,6 @@ import os
 import json
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError
-
-
-def aws_login(access_key, secret_key, region_name='us-east-1'):
-    """
-    Configures AWS session with provided access key and secret key.
-
-    Args:
-        access_key (str): AWS Access Key ID.
-        secret_key (str): AWS Secret Access Key.
-        region_name (str, optional): AWS Region. Defaults to 'us-east-1'.
-
-    Returns:
-        bool: True if login is successful, False otherwise.
-    """
-    try:
-        boto3.setup_default_session(
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            region_name=region_name
-        )
-        return True
-    except NoCredentialsError:
-        return False
 
 
 def upload_image_to_s3(image_path, bucket_name, object_name=None):
@@ -68,7 +42,7 @@ def upload_image_to_s3(image_path, bucket_name, object_name=None):
     try:
         s3_client.upload_file(image_path, bucket_name, object_name)
         return True
-    except ClientError as e:
+    except (ClientError, NoCredentialsError) as e:
         return e
 
 
@@ -102,7 +76,7 @@ def get_secret(secret_name, region="us-east-1"):
         # Parse the JSON string and extract the specific secret value
         secret_dict = json.loads(secret)
         return secret_dict.get(secret_name.split('/')[-1], None)
-    except ClientError as e:
+    except (ClientError, NoCredentialsError) as e:
         # For a list of exceptions thrown, see
         # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         return e

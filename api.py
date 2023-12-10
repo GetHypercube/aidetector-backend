@@ -8,8 +8,6 @@ results.
 import os
 import uuid
 from time import time
-import boto3
-from botocore.exceptions import ClientError, NoCredentialsError
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
@@ -21,7 +19,7 @@ from utils.general import (
     compress_and_resize_image,
 )
 from utils.aws import (
-    aws_login, upload_image_to_s3
+    upload_image_to_s3
 )
 from models.dmdetector import (
     process_image as dm_process_image,
