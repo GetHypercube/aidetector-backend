@@ -89,22 +89,23 @@ def craft_explanation(image_path, analysis_results):
             json=payload,
             timeout=30,
         )
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+
         logger.debug("OPENAI response is %s", response)
         if response.status_code == 200:
-            # Convert the response to JSON format
             data = response.json()
             logger.debug("Response choice: %s", data["choices"][0])
             result = data["choices"][0]["message"]["content"]
             return result
         else:
-            logger.warning("Received an invalid response from OpenAI")
-            return "Our explainability model is having some issues today"
+            logger.warning("Received a non-200 response from OpenAI")
+            return "Our explainability model is having some issues today. Please try again later."
     except requests.exceptions.Timeout:
         logger.warning("Request to OpenAI timed out")
-        return "Request to the LLM that was going to explain this timed out. Please try again later."
+        return "Our explainability model is having some issues today. Please try again later."
     except requests.exceptions.HTTPError as e:
         logger.warning("HTTP error occurred: %s", e)
-        return "Request to the LLM that was going to explain this had a HTTP error. Please try again later."
+        return "Our explainability model is having some issues today. Please try again later."
     except requests.exceptions.RequestException as e:
         logger.warning("Error during request to OpenAI: %s", e)
-        return "Request to the LLM that was going to explain this had a HTTP error. Please try again later."
+        return "Our explainability model is having some issues today. Please try again later."
