@@ -7,7 +7,7 @@ Functions:
 - craft_explanation: Sends an image and its analysis results to GPT Vision and crafts an 
                         explanation.
 """
-
+import os
 import requests
 from utils.general import encode_image, setup_logger
 from utils.aws import get_secret
@@ -54,7 +54,11 @@ def craft_explanation(image_path, analysis_results):
     {analysis_results}
     """
 
-    open_api_key = get_secret("OPENAI_API_KEY")
+    open_api_key = os.getenv("AWS_ACCESS_KEY")
+    if open_api_key:
+        pass
+    else:
+        open_api_key = get_secret("OPENAI_API_KEY")
 
     headers = {
         "Content-Type": "application/json",

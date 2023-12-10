@@ -72,7 +72,7 @@ def upload_image_to_s3(image_path, bucket_name, object_name=None):
         return e
 
 
-def get_secret(secret_name):
+def get_secret(secret_name, region="us-east-1"):
     """
     Retrieves the OpenAI API key stored in AWS Secrets Manager.
 
@@ -91,7 +91,7 @@ def get_secret(secret_name):
     secret_name = "aidetector-prod/" + secret_name
 
     # Create a Secrets Manager client
-    secret_client = boto3.client('secretsmanager')
+    secret_client = boto3.client('secretsmanager', region)
 
     try:
         get_secret_value_response = secret_client.get_secret_value(SecretId=secret_name)

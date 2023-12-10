@@ -21,7 +21,7 @@ from utils.general import (
     compress_and_resize_image,
 )
 from utils.aws import (
-    aws_login
+    aws_login, upload_image_to_s3
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -137,36 +137,6 @@ def detect():
     if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
 
-    # TODO: Remove this validation for local and ECS
-    def has_access_to_secret(secret_name, region_name='us-east-1'):
-        """
-        Checks if the application has access to the specified AWS secret.
-        
-        Args:
-            secret_name (str): The name of the secret in AWS Secrets Manager.
-            region_name (str): The AWS region where the secret is stored. Defaults to 'us-east-1'.
-
-        Returns:
-            bool: True if access is available, False otherwise.
-        """
-        try:
-            client = boto3.client('secretsmanager', region_name=region_name)
-            client.get_secret_value(SecretId=secret_name)
-            return True
-        except (ClientError, NoCredentialsError) as e:
-            # Log the error for debugging purposes
-            logger.error("Error accessing secret %s: %s", secret_name, e)
-            return False
-
-    has_access_to_secret = has_access_to_secret("aidetector-prod/OPENAI_API_KEY", "us-east-1")
-
-    if has_access_to_secret:
-        logger.info("Role is working correctly")
-    else:
-        aws_access_key = os.getenv("AWS_ACCESS_KEY")
-        aws_secret_key = os.getenv("AWS_SECRET_KEY")
-        aws_login(aws_access_key, aws_secret_key)
-
     # Generate a random mnemonic filename with the original file extension
     _, ext = os.path.splitext(file.filename)
     random_name = f"{uuid.uuid4()}{ext}"
@@ -185,6 +155,16 @@ def detect():
     except ValueError as e:
         logger.error("Image %s is not valid: %s", image_path, e)
         return jsonify({"error": str(e)}), 400
+
+    # Upload original image
+    uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
+    if not uploaded_original:
+        logger.info("Error upload image to AWS: %s", uploaded_original)
+
+    # Upload processed image
+    uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
+    if not uploaded_processed:
+        logger.info("Error upload image to AWS: %s", uploaded_processed)
 
     # Start timing
     start_time = time()
