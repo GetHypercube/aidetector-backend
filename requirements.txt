@@ -12,3 +12,4 @@ ipykernel
 scikit-learn
 matplotlib
 python-dotenv
+pymongo
