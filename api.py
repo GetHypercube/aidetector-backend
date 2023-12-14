@@ -12,6 +12,8 @@ from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
+import boto3
+from pymongo import MongoClient
 from utils.general import (
     setup_logger,
     get_memory_usage,
@@ -116,6 +118,46 @@ def feedback():
 
     return jsonify({"message": "Feedback received successfully"})
 
+def save_to_documentdb(image_path, inference_results):
+    """
+    Save the image path and inference results to AWS DocumentDB.
+
+    Args:
+    image_path (str): Path of the image.
+    inference_results (dict): JSON of the inference results.
+    """
+    try:
+        # Connection params
+        docdb_endpoint = os.getenv("DOCDB_ENDPOINT")
+        username = os.getenv("DOCDB_USERNAME")
+        password = os.getenv("DOCDB_PASSWORD")
+        ssl_ca_file = "global-bundle.pem"
+
+        # Build connection string
+        connection_string = f"mongodb://{username}:{password}@{docdb_endpoint}/test?tls=true&tlsCAFile={ssl_ca_file}&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+
+        # Connect to DocumentDB
+        with MongoClient(connection_string) as client:
+            # Select the database and collection
+            # @TODO: Add real database name and collection name
+            db = client.your_database_name
+            collection = db.your_collection_name
+
+            document = {
+                "image_path": image_path,
+                "inference_results": inference_results
+            }
+
+            # Insert document
+            collection.insert_one(document)
+            logger.info("Data saved to DocumentDB successfully")
+            
+            return jsonify({"message": "Data saved to DocumentDB successfully"})
+
+    except Exception as e:
+        logger.error(f"Error: {str(e)}")
+        
+        return jsonify({"error": str(e)})
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -204,6 +246,8 @@ def detect():
         "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
+
+    save_to_documentdb(image_path, results)
 
     return jsonify(results)
 
