@@ -46,6 +46,7 @@ pip install -r requirements.txt
 AWS_ACCESS_KEY=XXX
 AWS_SECRET_KEY=XXX
 OPENAI_SECRET_KEY=XXX
+MONGODB_URL=XXX
 ```
 
 ## Usage
