@@ -14,6 +14,7 @@ from flask import Flask, request, jsonify
 import torch
 import boto3
 from pymongo import MongoClient
+from datetime import datetime
 from utils.general import (
     setup_logger,
     get_memory_usage,
@@ -84,7 +85,8 @@ def save_to_mongodb(image_path, inference_results):
 
             document = {
                 "image_path": image_path,
-                "inference_results": inference_results
+                "inference_results": inference_results,
+                "created_at": timestamp
             }
 
             result = collection.insert_one(document)
