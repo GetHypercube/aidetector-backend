@@ -74,7 +74,8 @@ def preload_models():
     logger.info("Model preloading complete!")
 
 def save_to_mongodb(image_path, inference_results):
-    mongodb_url = os.getenv("MONGODB_URL")
+    # mongodb_url = os.getenv("MONGODB_URL")
+    mongodb_url = "mongodb+srv://dev:0XWIbgoIorLumDlx@hypercube-dev.mplpv.mongodb.net/test?authSource=admin&replicaSet=atlas-68tbb6-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
 
     try:
         with MongoClient(mongodb_url) as client:
