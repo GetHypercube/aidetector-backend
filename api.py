@@ -118,46 +118,31 @@ def feedback():
 
     return jsonify({"message": "Feedback received successfully"})
 
-def save_to_documentdb(image_path, inference_results):
-    """
-    Save the image path and inference results to AWS DocumentDB.
+def save_to_mongodb(image_path, inference_results):
+    mongodb_url = os.getenv("MONGODB_URL")
 
-    Args:
-    image_path (str): Path of the image.
-    inference_results (dict): JSON of the inference results.
-    """
     try:
-        # Connection params
-        docdb_endpoint = os.getenv("DOCDB_ENDPOINT")
-        username = os.getenv("DOCDB_USERNAME")
-        password = os.getenv("DOCDB_PASSWORD")
-        ssl_ca_file = "global-bundle.pem"
-
-        # Build connection string
-        connection_string = f"mongodb://{username}:{password}@{docdb_endpoint}/test?tls=true&tlsCAFile={ssl_ca_file}&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
-
-        # Connect to DocumentDB
-        with MongoClient(connection_string) as client:
-            # Select the database and collection
-            # @TODO: Add real database name and collection name
-            db = client.your_database_name
-            collection = db.your_collection_name
+        with MongoClient(mongodb_url) as client:
+            db = client['test']
+            collection = db['aidetectorresults']
 
             document = {
                 "image_path": image_path,
                 "inference_results": inference_results
             }
 
-            # Insert document
-            collection.insert_one(document)
-            logger.info("Data saved to DocumentDB successfully")
-            
-            return jsonify({"message": "Data saved to DocumentDB successfully"})
+            result = collection.insert_one(document)
+
+            if result.inserted_id:
+                response = {"message": "Saved successfully"}
+                logger.info("Saved successfully to mongodb: %s", result.inserted_id)
+            else:
+                response = {"message": "The document could not be inserted"}
+
+            return jsonify(response)
 
     except Exception as e:
-        logger.error(f"Error: {str(e)}")
-        
-        return jsonify({"error": str(e)})
+        logger.error("Error to save to mongodb", e)
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -247,7 +232,7 @@ def detect():
         "totalExecutionTime": total_execution_time,
     }
 
-    save_to_documentdb(image_path, results)
+    save_to_mongodb(image_path, results)
 
     return jsonify(results)
 
