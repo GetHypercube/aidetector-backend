@@ -12,6 +12,8 @@ from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
+import boto3
+from pymongo import MongoClient
 from utils.general import (
     setup_logger,
     get_memory_usage,
@@ -71,6 +73,32 @@ def preload_models():
 
     logger.info("Model preloading complete!")
 
+def save_to_mongodb(image_path, inference_results):
+    # mongodb_url = os.getenv("MONGODB_URL")
+    mongodb_url = "mongodb+srv://dev:0XWIbgoIorLumDlx@hypercube-dev.mplpv.mongodb.net/test?authSource=admin&replicaSet=atlas-68tbb6-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
+
+    try:
+        with MongoClient(mongodb_url) as client:
+            db = client['test']
+            collection = db['aidetectorresults']
+
+            document = {
+                "image_path": image_path,
+                "inference_results": inference_results
+            }
+
+            result = collection.insert_one(document)
+
+            if result.inserted_id:
+                response = {"message": "Saved successfully"}
+                logger.info("Saved successfully to mongodb: %s", result.inserted_id)
+            else:
+                response = {"message": "The document could not be inserted"}
+
+            return jsonify(response)
+
+    except Exception as e:
+        logger.error("Error to save to mongodb", e)
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
@@ -206,6 +234,8 @@ def detect():
         "explainabilityResults": craft_results,
         "totalExecutionTime": total_execution_time,
     }
+
+    save_to_mongodb(image_path, results)
 
     return jsonify(results)
 
