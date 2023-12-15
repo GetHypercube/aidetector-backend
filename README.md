@@ -46,13 +46,7 @@ pip install -r requirements.txt
 AWS_ACCESS_KEY=XXX
 AWS_SECRET_KEY=XXX
 OPENAI_SECRET_KEY=XXX
-```
-8. Additionally add the following variables to use AWS DocumentDB and add the `global-bundle.pem` in the root 
-
-```bash
-DOCDB_ENDPOINT=XXX
-DOCDB_USERNAME=XXX
-DOCDB_PASSWORD=XXX
+MONGODB_URL=XXX
 ```
 
 ## Usage
