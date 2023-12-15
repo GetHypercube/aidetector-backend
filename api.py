@@ -73,6 +73,31 @@ def preload_models():
 
     logger.info("Model preloading complete!")
 
+def save_to_mongodb(image_path, inference_results):
+    mongodb_url = os.getenv("MONGODB_URL")
+
+    try:
+        with MongoClient(mongodb_url) as client:
+            db = client['test']
+            collection = db['aidetectorresults']
+
+            document = {
+                "image_path": image_path,
+                "inference_results": inference_results
+            }
+
+            result = collection.insert_one(document)
+
+            if result.inserted_id:
+                response = {"message": "Saved successfully"}
+                logger.info("Saved successfully to mongodb: %s", result.inserted_id)
+            else:
+                response = {"message": "The document could not be inserted"}
+
+            return jsonify(response)
+
+    except Exception as e:
+        logger.error("Error to save to mongodb", e)
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
@@ -118,31 +143,6 @@ def feedback():
 
     return jsonify({"message": "Feedback received successfully"})
 
-def save_to_mongodb(image_path, inference_results):
-    mongodb_url = os.getenv("MONGODB_URL")
-
-    try:
-        with MongoClient(mongodb_url) as client:
-            db = client['test']
-            collection = db['aidetectorresults']
-
-            document = {
-                "image_path": image_path,
-                "inference_results": inference_results
-            }
-
-            result = collection.insert_one(document)
-
-            if result.inserted_id:
-                response = {"message": "Saved successfully"}
-                logger.info("Saved successfully to mongodb: %s", result.inserted_id)
-            else:
-                response = {"message": "The document could not be inserted"}
-
-            return jsonify(response)
-
-    except Exception as e:
-        logger.error("Error to save to mongodb", e)
 
 @app.route("/detect", methods=["POST"])
 def detect():
