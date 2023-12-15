@@ -182,6 +182,8 @@ def detect():
         logger.error("Image %s is not valid: %s", image_path, e)
         return jsonify({"error": str(e)}), 400
 
+    logger.info("Uploading images to S3")
+
     # Upload original image
     uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
     if not uploaded_original:

@@ -12,4 +12,6 @@ ipykernel
 scikit-learn
 matplotlib
 python-dotenv
+pandas
+seaborn
 pymongo
