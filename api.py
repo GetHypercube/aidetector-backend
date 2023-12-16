@@ -7,7 +7,7 @@ results.
 """
 import os
 import uuid
-from time import time
+from datetime import datetime
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
@@ -93,7 +93,7 @@ def save_to_mongodb(image_path, inference_results):
             document = {
                 "image_path": image_path,
                 "inference_results": inference_results,
-                "created_at": timestamp
+                "created_at": datetime.now(),
             }
 
             result = collection.insert_one(document)
