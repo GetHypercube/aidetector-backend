@@ -18,11 +18,11 @@ RUN wget -O weights.zip https://aidetector-models.s3.amazonaws.com/weights.zip \
 # Copy the requirements.txt file into the container at /app
 COPY requirements.txt /app/
 
-# Copy the .env file to /app
-COPY .env /app/
-
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the .env file to /app
+COPY .env /app/
 
 # Copy the rest of your application's code into the container at /app
 COPY . /app
