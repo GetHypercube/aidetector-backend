@@ -13,6 +13,7 @@ from datetime import datetime
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
 import torch
 from pymongo import MongoClient
 from utils.general import (
@@ -40,10 +41,13 @@ from models.gandetector import (
 from models.exifdetector import (
     process_image as exif_process_image,
 )
-from models.explainability import craft_explanation
-
-# Setup logger for Flask application
+from models.explainability import (
+    craft_explanation
+)
 logger = setup_logger(__name__)
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
