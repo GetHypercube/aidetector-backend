@@ -205,17 +205,17 @@ def detect():
     logger.info("Uploading images to S3")
 
     # Upload original image
-    uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
-    if not uploaded_original:
-        logger.error("Error upload image to AWS: %s", uploaded_original)
+    upload_success, error_message = upload_image_to_s3(image_path, "aidetector-results")
+    if not upload_success:
+        logger.error("Error upload image to AWS: %s", error_message)
         return jsonify({"error": "There was an issue processing your image"}), 400
 
     # Upload processed image
-    uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
-    if not uploaded_processed:
-        logger.error("Error upload image to AWS: %s", uploaded_processed)
-        return jsonify({"error": "The image is not valid"}), 400
-
+    upload_success, error_message = upload_image_to_s3(processed_image_path, "aidetector-results")
+    if not upload_success:
+        logger.error("Error upload image to AWS: %s", error_message)
+        return jsonify({"error": "There was an issue processing your image"}), 400
+    
     # Start timing
     start_time = time()
 
@@ -264,4 +264,13 @@ def detect():
 
 if __name__ == "__main__":
     preload_models()
-    serve(app, host="0.0.0.0", port=80)
+
+    # Check if the 'DEV_ENV' environment variable is set to 'true'
+    if os.environ.get('DEV_ENV') == 'true':
+        # Run on port 8080 for development environment
+        port = 8080
+    else:
+        # Run on port 80 otherwise
+        port = 80
+
+    serve(app, host="0.0.0.0", port=port)

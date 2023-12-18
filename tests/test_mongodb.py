@@ -13,7 +13,7 @@ try:
         collection = db['aidetectorresults']
 
         document = {
-            "image_path": '/imagen.png',
+            "image_path": '/image.png',
             "inference_results": {
                 "inferenceResults": {
                     "executionTime": 1.7613134384155273,
@@ -35,9 +35,9 @@ try:
         result = collection.insert_one(document)
 
         if result.inserted_id:
-            print("Documento insertado exitosamente. ID:", result.inserted_id)
+            print("Document successfully inserted", result.inserted_id)
         else:
-            print("No se pudo insertar el documento.")
+            print("Document insertion was unsuccessful")
 
 except Exception as e:
     print("Error:", str(e))
