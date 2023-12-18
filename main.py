@@ -47,12 +47,12 @@ from models.explainability import (
 
 logger = setup_logger(__name__)
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Global variables to store loaded models
 dm_loaded_models = {}
 gan_loaded_models = {}
-
-# Load environment variables from .env file
-load_dotenv()
 
 def preload_models():
     """

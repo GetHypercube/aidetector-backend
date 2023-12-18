@@ -14,7 +14,6 @@ from utils.aws import get_secret
 
 logger = setup_logger(__name__)
 
-
 def craft_explanation(image_path, analysis_results):
     """
     Sends an image and its analysis results to GPT Vision for crafting an explanation.

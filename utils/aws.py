@@ -41,9 +41,9 @@ def upload_image_to_s3(image_path, bucket_name, object_name=None):
     s3_client = boto3.client('s3')
     try:
         s3_client.upload_file(image_path, bucket_name, object_name)
-        return True
+        return True, None
     except (ClientError, NoCredentialsError) as e:
-        return e
+        return False, str(e)
 
 
 def get_secret(secret_name, region="us-east-1"):
