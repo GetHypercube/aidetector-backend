@@ -263,7 +263,10 @@ def detect():
 
 
 if __name__ == "__main__":
+
     preload_models()
+
+    logger.info("Running on environment: %s", os.environ.get('DEV_ENV'))
 
     # Check if the 'DEV_ENV' environment variable is set to 'true'
     if os.environ.get('DEV_ENV') == 'true':
@@ -273,4 +276,8 @@ if __name__ == "__main__":
         # Run on port 80 otherwise
         port = 80
 
+    # Log the port number
+    logger.info("Successfully running the API on port %s", port)
+
     serve(app, host="0.0.0.0", port=port)
+
