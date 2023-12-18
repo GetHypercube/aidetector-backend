@@ -7,6 +7,7 @@ results.
 """
 import os
 import uuid
+import tempfile
 from time import time
 from datetime import datetime
 from flask_cors import CORS
@@ -171,16 +172,19 @@ def detect():
         return jsonify({"error": "No file part"}), 400
 
     file = request.files["file"]
-    print(file.filename)
+
     if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No selected image"}), 400
+
+    logger.info("Received the image %s", file.filename)
 
     # Generate a random mnemonic filename with the original file extension
     _, ext = os.path.splitext(file.filename)
     random_name = f"{uuid.uuid4()}{ext}"
-    image_path = f"/tmp/{random_name}"
 
     # Save the file to a temporary location
+    temp_dir = tempfile.gettempdir()
+    image_path = os.path.join(temp_dir, random_name)
     file.save(image_path)
 
     logger.info("Image saved in temporal the location: %s", image_path)
@@ -192,19 +196,21 @@ def detect():
         logger.info("Image %s validated, resized and compressed", image_path)
     except ValueError as e:
         logger.error("Image %s is not valid: %s", image_path, e)
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": "The provided image format is not valid"}), 400
 
     logger.info("Uploading images to S3")
 
-    # Upload original image
-    uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
-    if not uploaded_original:
-        logger.info("Error upload image to AWS: %s", uploaded_original)
+    # # Upload original image
+    # uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
+    # if not uploaded_original:
+    #     logger.error("Error upload image to AWS: %s", uploaded_original)
+    #     return jsonify({"error": "There was an issue processing your image"}), 400
 
-    # Upload processed image
-    uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
-    if not uploaded_processed:
-        logger.info("Error upload image to AWS: %s", uploaded_processed)
+    # # Upload processed image
+    # uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
+    # if not uploaded_processed:
+    #     logger.error("Error upload image to AWS: %s", uploaded_processed)
+    #     return jsonify({"error": "The image is not valid"}), 400
 
     # Start timing
     start_time = time()
@@ -254,4 +260,4 @@ def detect():
 
 if __name__ == "__main__":
     preload_models()
-    serve(app, host="0.0.0.0", port=80)
+    serve(app, host="0.0.0.0", port=8080)
