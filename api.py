@@ -200,17 +200,17 @@ def detect():
 
     logger.info("Uploading images to S3")
 
-    # # Upload original image
-    # uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
-    # if not uploaded_original:
-    #     logger.error("Error upload image to AWS: %s", uploaded_original)
-    #     return jsonify({"error": "There was an issue processing your image"}), 400
+    # Upload original image
+    uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
+    if not uploaded_original:
+        logger.error("Error upload image to AWS: %s", uploaded_original)
+        return jsonify({"error": "There was an issue processing your image"}), 400
 
-    # # Upload processed image
-    # uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
-    # if not uploaded_processed:
-    #     logger.error("Error upload image to AWS: %s", uploaded_processed)
-    #     return jsonify({"error": "The image is not valid"}), 400
+    # Upload processed image
+    uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
+    if not uploaded_processed:
+        logger.error("Error upload image to AWS: %s", uploaded_processed)
+        return jsonify({"error": "The image is not valid"}), 400
 
     # Start timing
     start_time = time()
