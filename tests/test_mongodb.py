@@ -1,6 +1,11 @@
+import os
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
-mongodb_url = "mongodb+srv://dev:0XWIbgoIorLumDlx@hypercube-dev.mplpv.mongodb.net/test?authSource=admin&replicaSet=atlas-68tbb6-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
+# Load environment variables from .env file
+load_dotenv()
+
+mongodb_url = os.getenv("MONGODB_URL")
 
 try:
     with MongoClient(mongodb_url) as client:
@@ -8,7 +13,7 @@ try:
         collection = db['aidetectorresults']
 
         document = {
-            "image_path": '/imagen.png',
+            "image_path": '/image.png',
             "inference_results": {
                 "inferenceResults": {
                     "executionTime": 1.7613134384155273,
@@ -30,9 +35,9 @@ try:
         result = collection.insert_one(document)
 
         if result.inserted_id:
-            print("Documento insertado exitosamente. ID:", result.inserted_id)
+            print("Document successfully inserted", result.inserted_id)
         else:
-            print("No se pudo insertar el documento.")
+            print("Document insertion was unsuccessful")
 
 except Exception as e:
     print("Error:", str(e))

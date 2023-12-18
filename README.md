@@ -38,16 +38,24 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-6. Download the weights from this [link](https://aidetector-models.s3.amazonaws.com/weights.zip) and place them under `/weights` directory in your project folder.
+6. If you have a GPU, make sure Pytorch is compiled with GPU support. Here is the example installation command for Windows:
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+Please go to the following [link](https://pytorch.org/get-started/locally/) to find the detailed instructions.
 
-7. You need to create a `.env` file with the following variables:
+7. Download the weights from this [link](https://aidetector-models.s3.amazonaws.com/weights.zip) and place them under `/weights` directory in your project folder.
+
+8. You need to create a `.env` file with the following variables:
 
 ```bash
 AWS_ACCESS_KEY=XXX
 AWS_SECRET_KEY=XXX
-OPENAI_SECRET_KEY=XXX
+OPENAI_API_KEY=XXX
 MONGODB_URL=XXX
+DEV_ENV=true
 ```
+9. If you are going to use the API, please make sure to have the AWS CLI installed and properly configured.
 
 ## Usage
 
