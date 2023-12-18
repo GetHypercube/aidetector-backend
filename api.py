@@ -8,13 +8,12 @@ results.
 import os
 import uuid
 from time import time
+from datetime import datetime
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
-import boto3
 from pymongo import MongoClient
-from datetime import datetime
 from utils.general import (
     setup_logger,
     get_memory_usage,
@@ -23,6 +22,9 @@ from utils.general import (
 )
 from utils.aws import (
     upload_image_to_s3
+)
+from utils.aws import (
+    get_secret
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -75,14 +77,22 @@ def preload_models():
     logger.info("Model preloading complete!")
 
 def save_to_mongodb(image_path, inference_results):
-    # mongodb_url = os.getenv("MONGODB_URL")
-    mongodb_url = "mongodb+srv://dev:0XWIbgoIorLumDlx@hypercube-dev.mplpv.mongodb.net/test?authSource=admin&replicaSet=atlas-68tbb6-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
+    """
+    Save results to MongoDB
+    """
+
+    mongodb_url = os.getenv("MONGODB_URL")
+    if mongodb_url:
+        pass
+    else:
+        mongodb_url = get_secret("MONGODB_URL")
 
     try:
         with MongoClient(mongodb_url) as client:
             db = client['test']
             collection = db['aidetectorresults']
 
+            timestamp = datetime.now()
             document = {
                 "image_path": image_path,
                 "inference_results": inference_results,
@@ -100,7 +110,7 @@ def save_to_mongodb(image_path, inference_results):
             return jsonify(response)
 
     except Exception as e:
-        logger.error("Error to save to mongodb", e)
+        logger.error("Error to save to mongodb: %s", e)
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
