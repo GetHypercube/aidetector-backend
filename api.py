@@ -87,21 +87,24 @@ def save_to_mongodb(image_path, inference_results):
     """
 
     mongodb_url = os.getenv("MONGODB_URL")
+    
     if mongodb_url:
         pass
     else:
         mongodb_url = get_secret("MONGODB_URL")
 
+    logger.info("MONGODB_URL is: ", mongodb_url)
+
     try:
         with MongoClient(mongodb_url) as client:
             db = client['test']
             collection = db['aidetectorresults']
-
             timestamp = datetime.now()
+
             document = {
                 "image_path": image_path,
                 "inference_results": inference_results,
-                "created_at": timestamp
+                "created_at": timestamp,
             }
 
             result = collection.insert_one(document)
