@@ -7,12 +7,13 @@ results.
 """
 import os
 import uuid
+import tempfile
 from time import time
+from datetime import datetime
 from flask_cors import CORS
 from waitress import serve
 from flask import Flask, request, jsonify
 import torch
-import boto3
 from pymongo import MongoClient
 from utils.general import (
     setup_logger,
@@ -22,6 +23,9 @@ from utils.general import (
 )
 from utils.aws import (
     upload_image_to_s3
+)
+from utils.aws import (
+    get_secret
 )
 from models.dmdetector import (
     process_image as dm_process_image,
@@ -74,17 +78,26 @@ def preload_models():
     logger.info("Model preloading complete!")
 
 def save_to_mongodb(image_path, inference_results):
-    # mongodb_url = os.getenv("MONGODB_URL")
-    mongodb_url = "mongodb+srv://dev:0XWIbgoIorLumDlx@hypercube-dev.mplpv.mongodb.net/test?authSource=admin&replicaSet=atlas-68tbb6-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true"
+    """
+    Save results to MongoDB
+    """
+
+    mongodb_url = os.getenv("MONGODB_URL")
+    if mongodb_url:
+        pass
+    else:
+        mongodb_url = get_secret("MONGODB_URL")
 
     try:
         with MongoClient(mongodb_url) as client:
             db = client['test']
             collection = db['aidetectorresults']
 
+            timestamp = datetime.now()
             document = {
                 "image_path": image_path,
-                "inference_results": inference_results
+                "inference_results": inference_results,
+                "created_at": timestamp
             }
 
             result = collection.insert_one(document)
@@ -98,7 +111,7 @@ def save_to_mongodb(image_path, inference_results):
             return jsonify(response)
 
     except Exception as e:
-        logger.error("Error to save to mongodb", e)
+        logger.error("Error to save to mongodb: %s", e)
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
@@ -159,16 +172,19 @@ def detect():
         return jsonify({"error": "No file part"}), 400
 
     file = request.files["file"]
-    print(file.filename)
+
     if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No selected image"}), 400
+
+    logger.info("Received the image %s", file.filename)
 
     # Generate a random mnemonic filename with the original file extension
     _, ext = os.path.splitext(file.filename)
     random_name = f"{uuid.uuid4()}{ext}"
-    image_path = f"/tmp/{random_name}"
 
     # Save the file to a temporary location
+    temp_dir = tempfile.gettempdir()
+    image_path = os.path.join(temp_dir, random_name)
     file.save(image_path)
 
     logger.info("Image saved in temporal the location: %s", image_path)
@@ -180,19 +196,21 @@ def detect():
         logger.info("Image %s validated, resized and compressed", image_path)
     except ValueError as e:
         logger.error("Image %s is not valid: %s", image_path, e)
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": "The provided image format is not valid"}), 400
 
     logger.info("Uploading images to S3")
 
     # Upload original image
     uploaded_original = upload_image_to_s3(image_path, "aidetector-results")
     if not uploaded_original:
-        logger.info("Error upload image to AWS: %s", uploaded_original)
+        logger.error("Error upload image to AWS: %s", uploaded_original)
+        return jsonify({"error": "There was an issue processing your image"}), 400
 
     # Upload processed image
     uploaded_processed = upload_image_to_s3(processed_image_path, "aidetector-results")
     if not uploaded_processed:
-        logger.info("Error upload image to AWS: %s", uploaded_processed)
+        logger.error("Error upload image to AWS: %s", uploaded_processed)
+        return jsonify({"error": "The image is not valid"}), 400
 
     # Start timing
     start_time = time()
