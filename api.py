@@ -115,7 +115,7 @@ def save_to_mongodb(image_path, inference_results):
             return jsonify(response)
 
     except Exception as e:
-        logger.error("Error to save to mongodb: %s", e)
+        logger.error("Error to save to MongoDB: %s", e)
 
 @app.route("/debug/preload_models", methods=["GET"])
 def debug_preload_models():
@@ -215,7 +215,7 @@ def detect():
     if not upload_success:
         logger.error("Error upload image to AWS: %s", error_message)
         return jsonify({"error": "There was an issue processing your image"}), 400
-    
+
     # Start timing
     start_time = time()
 
@@ -280,4 +280,3 @@ if __name__ == "__main__":
     logger.info("Successfully running the API on port %s", port)
 
     serve(app, host="0.0.0.0", port=port)
-
