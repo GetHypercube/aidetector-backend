@@ -20,8 +20,32 @@ Exceptions:
 import os
 import json
 import boto3
+from dotenv import load_dotenv
 from botocore.exceptions import ClientError, NoCredentialsError
 
+# Load environment variables from .env file
+load_dotenv()
+
+def create_aws_client(service, region="us-east-1"):
+    """
+    Creates an AWS client for the specified service.
+
+    Args:
+        service (str): The AWS service for which to create the client.
+        region (str): AWS region to use.
+
+    Returns:
+        boto3.client: A boto3 client for the specified service.
+    """
+    aws_access_key = os.getenv('AWS_ACCESS_KEY')
+    aws_secret_key = os.getenv('AWS_SECRET_KEY')
+
+    if aws_access_key and aws_secret_key:
+        return boto3.client(service, region_name=region,
+                            aws_access_key_id=aws_access_key,
+                            aws_secret_access_key=aws_secret_key)
+    else:
+        return boto3.client(service, region_name=region)
 
 def upload_image_to_s3(image_path, bucket_name, object_name=None):
     """
@@ -38,7 +62,9 @@ def upload_image_to_s3(image_path, bucket_name, object_name=None):
     if object_name is None:
         object_name = os.path.basename(image_path)
 
-    s3_client = boto3.client('s3')
+    # Create a S3 client
+    s3_client = create_aws_client('s3')
+
     try:
         s3_client.upload_file(image_path, bucket_name, object_name)
         return True, None
@@ -65,7 +91,7 @@ def get_secret(secret_name, region="us-east-1"):
     secret_name = "aidetector-prod/" + secret_name
 
     # Create a Secrets Manager client
-    secret_client = boto3.client('secretsmanager', region)
+    secret_client = create_aws_client('secretsmanager', region)
 
     try:
         get_secret_value_response = secret_client.get_secret_value(SecretId=secret_name)
