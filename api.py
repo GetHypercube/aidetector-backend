@@ -138,7 +138,6 @@ def debug_preload_models():
         200,
     )
 
-
 @app.route("/", methods=["GET"])
 def hello_world():
     """
@@ -146,23 +145,59 @@ def hello_world():
     """
     return jsonify({"message": "Hello world!"}), 200
 
+def update_feedback_in_mongodb(image_path, feedback):
+    """
+    Update feedback in MongoDB
+    """
+
+    mongodb_url = os.getenv("MONGODB_URL")
+
+    if mongodb_url:
+        pass
+    else:
+        mongodb_url = get_secret("MONGODB_URL")
+
+    logger.info("MONGODB_URL is: %s", mongodb_url)
+
+    try:
+        with MongoClient(mongodb_url) as client:
+            db = client['test']
+            collection = db['aidetectorresults']
+            existing_document = collection.find_one({"image_path": image_path})
+
+            if existing_document:
+                collection.update_one(
+                    {"image_path": image_path},
+                    {"$set": {"feedback": feedback}}
+                )
+                logger.info("MongoDB document updated")
+            else:
+                logger.warning("Document not found for image_path: %s", image_path)
+
+    except Exception as e:
+        logger.error("Error updating feedback in MongoDB: %s", e)
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
     """
     Receives user feedback for an image detection.
 
-    Expects a JSON payload with 'file_name' and 'feedback' keys.
+    Expects a JSON payload with 'image_path' and 'feedback' keys.
     Prints the received data and returns a confirmation message.
     """
 
     logger.debug("Received feedback data: %s", request.data)
 
     data = request.json
-    if not data or "file_name" not in data or "feedback" not in data:
-        return jsonify({"error": "Missing file_name or feedback"}), 400
+    if not data or "image_path" not in data or "feedback" not in data:
+        return jsonify({"error": "Missing image_path or feedback"}), 400
 
-    return jsonify({"message": "Feedback received successfully"})
+    image_path = data["image_path"]
+    feedback_text = data["feedback"]
+
+    update_feedback_in_mongodb(image_path, feedback_text)
+
+    return jsonify({"message": "Feedback received and updated successfully"})
 
 
 @app.route("/detect", methods=["POST"])
@@ -253,6 +288,7 @@ def detect():
 
     # Combine results
     results = {
+        "imagePath": image_path,
         "dMDetectorResults": dm_results,
         "gANDetectorResults": gan_results,
         "exifDetectorResults": exif_results,
