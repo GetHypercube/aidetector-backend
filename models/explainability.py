@@ -65,7 +65,7 @@ def craft_explanation(image_path, analysis_results):
     }
 
     payload = {
-        "model": "gpt-4-vision-preview",
+        "model": "gpt-4-turbo",
         "messages": [
             {
                 "role": "user",
