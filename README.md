@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 6. If you have a GPU, make sure Pytorch is compiled with GPU support. Here is the example installation command for Windows:
 ```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install torch --index-url https://download.pytorch.org/whl/cu124
 ```
 Please go to the following [link](https://pytorch.org/get-started/locally/) to find the detailed instructions.
 
@@ -61,11 +61,11 @@ DEV_ENV=true
 
 To run the detector on an image:
 
-`python main.py --image_path image.jpg` 
+`python main.py --image_path test.jpg` 
 
 To run the detector on a folder:
 
-`python main.py --image_folder image.jpg` 
+`python main.py --image_folder test.jpg` 
 
 To run the detector on a folder and a specific models:
 
