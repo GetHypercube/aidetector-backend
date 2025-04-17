@@ -1,6 +1,6 @@
 $scriptBlock = {
     param($i)
-    curl -X POST -F "file=@test_real_image.jpg" https://aidetector-prod.gethypercube.com/detect -k
+    curl -X POST -F "file=@test_real_image.jpg" https://aidetector-prod.getobok.com/detect -k
 }
 
 1..1 | ForEach-Object {
